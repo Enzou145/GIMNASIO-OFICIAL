@@ -227,6 +227,7 @@ function cerrarModalNuevoSocio() {
     if (txtPrecio) txtPrecio.textContent = "$ 0";
 }
 
+
 // --- 4. GUARDAR SOCIO ---
 const formNuevoSocio = document.getElementById("form-nuevo-socio");
 if (formNuevoSocio) {
@@ -241,6 +242,13 @@ if (formNuevoSocio) {
             const nombre = document.getElementById("input-nombre").value.trim();
             const apellido = document.getElementById("input-apellido").value.trim();
             const email = document.getElementById("input-email")?.value.trim() || null;
+            
+            // --- NUEVOS CAMPOS CAPTURADOS ---
+            const fechaNacimiento = document.getElementById("input-fecha-nacimiento").value || null;
+            const genero = document.getElementById("select-genero").value || null;
+            const telefono = document.getElementById("input-telefono").value.trim() || null;
+            // --------------------------------
+            
             const planId = document.getElementById("select-plan-nuevo").value;
             const monto = parseFloat(document.getElementById("input-monto-nuevo").value) || 0;
             const rawMetodo = document.getElementById("select-metodo-pago")?.value || 'Efectivo';
@@ -254,11 +262,19 @@ if (formNuevoSocio) {
 
             if (socioIdActual) {
                 // ==========================================
-                // MODO EDICIÓN (UPDATE)
+                // MODO EDICIÓN (UPDATE) - Incluyendo nuevos campos
                 // ==========================================
                 const { error: errorSocio } = await supabaseClient
                     .from("socios")
-                    .update({ nombre, apellido, email, fecha_ingreso: fechaIngreso })
+                    .update({ 
+                        nombre, 
+                        apellido, 
+                        email, 
+                        fecha_nacimiento: fechaNacimiento, // Agregado
+                        genero: genero,                    // Agregado
+                        telefono: telefono,                // Agregado
+                        fecha_ingreso: fechaIngreso 
+                    })
                     .eq('id', socioIdActual);
 
                 if (errorSocio) throw errorSocio;
@@ -274,7 +290,7 @@ if (formNuevoSocio) {
             } 
             else {
                 // ==========================================
-                // MODO CREACIÓN (INSERT)
+                // MODO CREACIÓN (INSERT) - Incluyendo nuevos campos
                 // ==========================================
                 
                 // 1. Insertar Socio
@@ -285,6 +301,9 @@ if (formNuevoSocio) {
                         nombre, 
                         apellido, 
                         email,
+                        fecha_nacimiento: fechaNacimiento, // Agregado
+                        genero: genero,                    // Agregado
+                        telefono: telefono,                // Agregado
                         fecha_ingreso: fechaIngreso, 
                         activo: true 
                     })
@@ -293,6 +312,7 @@ if (formNuevoSocio) {
                 if (errorSocio) throw errorSocio;
 
                 // 2. Calcular vencimiento dinamico basado en el plan
+                const selectPlanNuevo = document.getElementById("select-plan-nuevo");
                 const opcionPlan = selectPlanNuevo.options[selectPlanNuevo.selectedIndex];
                 const duracionDias = parseInt(opcionPlan.dataset.duracionDias) || 30;
                 
@@ -347,15 +367,6 @@ if (formNuevoSocio) {
 
 
 
-
-
-
-
-
-
-
-
-
 function actualizarTarjetasEstadisticas(socios) {
     const hoy = new Date();
     const proximoVencer = new Date();
@@ -391,16 +402,6 @@ function actualizarTarjetasEstadisticas(socios) {
     document.getElementById('stat-vencidos').textContent = vencidos;
     document.getElementById('stat-por-vencer').textContent = porVencer;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -559,8 +560,6 @@ window.eliminarSocio = async (id) => {
     if (error) alert("Error al eliminar");
     else listarSocios();
 };
-
-
 
 
 window.verDetalles = async (id) => {

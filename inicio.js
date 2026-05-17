@@ -160,8 +160,15 @@ if (formNuevoSocio) {
 
         try {
             const gymId = localStorage.getItem("gimnasio_id");
+            
+            // Captura de datos del Socio (Campos nuevos agregados)
             const nombre = document.getElementById("input-nombre").value.trim();
             const apellido = document.getElementById("input-apellido").value.trim();
+            const email = document.getElementById("input-email").value.trim();
+            const fechaNacimiento = document.getElementById("input-fecha-nacimiento").value || null;
+            const genero = document.getElementById("select-genero").value;
+            const telefono = document.getElementById("input-telefono").value.trim();
+            
             const planId = document.getElementById("select-plan-nuevo").value;
             const monto = parseFloat(document.getElementById("input-monto-nuevo").value) || 0;
             const metodoPago = document.getElementById("select-metodo-pago").value;
@@ -175,20 +182,25 @@ if (formNuevoSocio) {
             }
 
             // Calcular vencimiento
+            const selectPlanNuevo = document.getElementById("select-plan-nuevo");
             const opcionPlan = selectPlanNuevo.options[selectPlanNuevo.selectedIndex];
-            const duracionDias = parseInt(opcionPlan.dataset.duracionDias) || 30; // Por defecto 30 dias si falla
+            const duracionDias = parseInt(opcionPlan.dataset.duracionDias) || 30; 
             
             const [anio, mes, dia] = fechaIngreso.split("-").map(Number);
             const vencimiento = new Date(anio, mes - 1, dia + duracionDias);
             const fechaVencimiento = vencimiento.toISOString().split('T')[0];
 
-            // PASO 1: Insertar socio
+            // PASO 1: Insertar socio con TODOS los datos
             const { data: socio, error: errorSocio } = await supabaseClient
                 .from("socios")
                 .insert({
                     gimnasio_id: gymId,
                     nombre,
                     apellido,
+                    email,
+                    fecha_nacimiento: fechaNacimiento,
+                    genero,
+                    telefono,
                     fecha_ingreso: fechaIngreso,
                     activo: true
                 }).select().single();
@@ -223,8 +235,10 @@ if (formNuevoSocio) {
             if (errorPago) throw errorPago;
 
             alert(`✅ Socio guardado correctamente.`);
-            cerrarModalNuevoSocio();
-            location.reload(); // Recargar para ver los cambios
+            if (typeof cerrarModalNuevoSocio === "function") {
+                cerrarModalNuevoSocio();
+            }
+            location.reload(); 
 
         } catch (err) {
             alert("❌ Error: " + err.message);
@@ -234,7 +248,6 @@ if (formNuevoSocio) {
         }
     });
 }
-
 // --- LOGICA DEL FOOTER DEL SIDEBAR ---
 async function cargarDatosUsuario() {
     const gymId = localStorage.getItem("gimnasio_id");
