@@ -522,69 +522,57 @@ async function procesarQR(qrToken) {
     }
 }
 
-    if (btnIniciarScanner) {
-        btnIniciarScanner.addEventListener('click', async () => {
-            if (escainerActivo) return;
+if (btnIniciarScanner) {
+    btnIniciarScanner.addEventListener('click', async () => {
+        if (escainerActivo) return;
 
-            escainerActivo = true;
-            btnIniciarScanner.classList.add('oculta');
-            // REEMPLAZÁ por esto:
-            document.getElementById('qr-scanner-fullscreen').classList.remove('oculto');
-            qrResultado.classList.add('oculta');
+        escainerActivo = true;
+        document.getElementById('qr-scanner-fullscreen').classList.remove('oculto');
 
-            try {
-                html5QrcodeScanner = new Html5Qrcode('qr-reader');
+        try {
+            html5QrcodeScanner = new Html5Qrcode('qr-reader');
 
-                // ✅ Arranca directo, sin botón intermedio
-                await html5QrcodeScanner.start(
-                    { facingMode: 'environment' },  // cámara trasera
-                    {
-                        fps: 15,
-                        qrbox: { width: 250, height: 250 },
-                        aspectRatio: 1.0,
-                        disableFlip: false,
-                        // ✅ Esta es la clave: oculta el botón nativo de la librería
-                        showTorchButtonIfSupported: false,
-                        showZoomSliderIfSupported: false,
-                        defaultZoomValueIfSupported: 1,
-                        rememberLastUsedCamera: true
-                    },
-                    (decodedText) => {
-                        procesarQR(decodedText);
-                    },
-                    () => {} // errores silenciosos mientras busca
-                );
+            await html5QrcodeScanner.start(
+                { facingMode: 'environment' },
+                {
+                    fps: 15,
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0,
+                    disableFlip: false,
+                    showTorchButtonIfSupported: false,
+                    showZoomSliderIfSupported: false,
+                    defaultZoomValueIfSupported: 1,
+                    rememberLastUsedCamera: true
+                },
+                (decodedText) => {
+                    procesarQR(decodedText);
+                },
+                () => {}
+            );
 
-            } catch (err) {
-                console.error('Error iniciando escáner:', err);
-                alert('No se pudo acceder a la cámara');
-                escainerActivo = false;
-                btnIniciarScanner.classList.remove('oculta');
-                btnDetenerScanner.classList.add('oculta');
-                qrReader.classList.add('oculta');
-            }
-        });
-    }
-    
-    if (btnDetenerScanner) {
-        btnDetenerScanner.addEventListener('click', async () => {
-            if (!escainerActivo) return;
+        } catch (err) {
+            console.error('Error iniciando escáner:', err);
+            alert('No se pudo acceder a la cámara');
+            escainerActivo = false;
+            document.getElementById('qr-scanner-fullscreen').classList.add('oculto');
+        }
+    });
+}
 
-            try {
-                if (html5QrcodeScanner) {
-                    await html5QrcodeScanner.stop();
-                    html5QrcodeScanner = null;
-                }
-                escainerActivo = false;
-                procesandoQr = false;
-                btnIniciarScanner.classList.remove('oculta');
-// REEMPLAZÁ por esto:
-document.getElementById('qr-scanner-fullscreen').classList.add('oculto');
-                qrResultado.classList.add('oculta');
-            } catch (err) {
-                console.error('Error deteniendo escáner:', err);
-            }
-        });
+// Detener escáner — ahora busca el botón dentro del fullscreen
+document.getElementById('btn-detener-scanner').addEventListener('click', async () => {
+    if (!escainerActivo) return;
+
+    try {
+        if (html5QrcodeScanner) {
+            await html5QrcodeScanner.stop();
+            html5QrcodeScanner = null;
+        }
+        escainerActivo = false;
+        procesandoQr = false;
+        document.getElementById('qr-scanner-fullscreen').classList.add('oculto');
+    } catch (err) {
+        console.error('Error deteniendo escáner:', err);
     }
 });
 
