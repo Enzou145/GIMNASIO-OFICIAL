@@ -528,8 +528,8 @@ async function procesarQR(qrToken) {
 
             escainerActivo = true;
             btnIniciarScanner.classList.add('oculta');
-            btnDetenerScanner.classList.remove('oculta');
-            qrReader.classList.remove('oculta');
+            // REEMPLAZÁ por esto:
+            document.getElementById('qr-scanner-fullscreen').classList.remove('oculto');
             qrResultado.classList.add('oculta');
 
             try {
@@ -578,8 +578,8 @@ async function procesarQR(qrToken) {
                 escainerActivo = false;
                 procesandoQr = false;
                 btnIniciarScanner.classList.remove('oculta');
-                btnDetenerScanner.classList.add('oculta');
-                qrReader.classList.add('oculta');
+// REEMPLAZÁ por esto:
+document.getElementById('qr-scanner-fullscreen').classList.add('oculto');
                 qrResultado.classList.add('oculta');
             } catch (err) {
                 console.error('Error deteniendo escáner:', err);
