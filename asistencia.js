@@ -560,7 +560,8 @@ if (btnIniciarScanner) {
 }
 
 // Detener escáner — ahora busca el botón dentro del fullscreen
-document.getElementById('btn-detener-scanner').addEventListener('click', async () => {
+document.addEventListener('click', async (e) => {
+    if (!e.target.closest('#btn-detener-scanner')) return;
     if (!escainerActivo) return;
 
     try {
@@ -575,7 +576,6 @@ document.getElementById('btn-detener-scanner').addEventListener('click', async (
         console.error('Error deteniendo escáner:', err);
     }
 });
-
 
 // --- LOGICA DEL FOOTER DEL SIDEBAR ---
 async function cargarDatosUsuario() {
@@ -640,4 +640,4 @@ if (btnLogout) {
             window.location.href = "index.html";
         }
     });
-}
+}});
