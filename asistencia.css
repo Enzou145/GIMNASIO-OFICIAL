@@ -909,3 +909,112 @@ min-width: 180px;}
     width: 100% !important;
     border-radius: 8px;
 }
+
+
+
+/* ================= OVERLAY FULLSCREEN QR ================ */
+.qr-overlay-resultado {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: opacity 0.3s ease;
+}
+
+.qr-overlay-resultado.oculto {
+    display: none;
+}
+
+.qr-overlay-resultado.exito {
+    background: linear-gradient(135deg, #064e1e 0%, #0a6629 50%, #0d7a30 100%);
+}
+
+.qr-overlay-resultado.error {
+    background: linear-gradient(135deg, #4e0606 0%, #7a0d0d 50%, #8b1010 100%);
+}
+
+.qr-overlay-contenido {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 40px;
+    text-align: center;
+}
+
+.qr-overlay-icono {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.qr-overlay-resultado.exito .qr-overlay-icono {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.qr-overlay-resultado.error .qr-overlay-icono {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.qr-overlay-icono svg {
+    width: 64px;
+    height: 64px;
+    stroke: white;
+}
+
+.qr-overlay-contenido h1 {
+    font-size: 36px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 3px;
+    margin: 0;
+}
+
+.qr-overlay-contenido h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+}
+
+.qr-overlay-contenido p {
+    font-size: 20px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.qr-overlay-barra {
+    width: 280px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-top: 30px;
+    overflow: hidden;
+}
+
+.qr-overlay-barra-progreso {
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    border-radius: 2px;
+    transform-origin: left;
+    animation: none;
+}
+
+@keyframes barraTemporizador {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}

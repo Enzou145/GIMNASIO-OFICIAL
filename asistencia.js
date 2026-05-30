@@ -65,6 +65,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const iconoExito = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>';
     const iconoError = '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>';
 
+
+function reproducirSonido(tipo) {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+    if (tipo === 'exito') {
+        // BEEP limpio y corto - tipo torniquete de metro
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.value = 1050;
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + 0.01);
+        gain.gain.setValueAtTime(0.9, ctx.currentTime + 0.18);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.35);
+
+    } else {
+        // BEEP grave doble - tipo error de sistema
+        [0, 0.35].forEach(inicio => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 300;
+            gain.gain.setValueAtTime(0, ctx.currentTime + inicio);
+            gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + inicio + 0.01);
+            gain.gain.setValueAtTime(0.9, ctx.currentTime + inicio + 0.2);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + inicio + 0.3);
+            osc.start(ctx.currentTime + inicio);
+            osc.stop(ctx.currentTime + inicio + 0.35);
+        });
+    }
+}
+
     let timeoutBuscador = null;
 
     // Actualiza el texto de la fecha de hoy en el header
@@ -318,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (socio.estadoComputado === 'vencido') {
                 alertaIngreso.className = 'alerta-ingreso error';
                 alertaTitulo.textContent = 'Acceso Denegado';
+                reproducirSonido('error'); // ✅ Sonido de error
                 alertaMensaje.textContent = `${socio.nombre} ${socio.apellido} - ${socio.textoEstado}`;
                 alertaIcono.innerHTML = iconoError;
                 
@@ -344,6 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             alertaIngreso.className = 'alerta-ingreso exito';
             alertaTitulo.textContent = 'Acceso Autorizado';
+            reproducirSonido('exito'); // ✅ Sonido de éxito
             alertaMensaje.textContent = `${socio.nombre} ${socio.apellido} - ${socio.textoEstado}`;
             alertaIcono.innerHTML = iconoExito;
             
@@ -401,95 +441,86 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function procesarQR(qrToken) {
-        if (procesandoQr) return;
-        procesandoQr = true;
+async function procesarQR(qrToken) {
+    if (procesandoQr) return;
+    procesandoQr = true;
 
-        try {
-            const { data: socio, error } = await supabaseClient
-                .from('socios')
-                .select('id, nombre, apellido')
-                .eq('qr_token', qrToken)
-                .eq('gimnasio_id', GIMNASIO_ID)
-                .single();
+    const overlay = document.getElementById('qr-overlay-resultado');
+    const overlayTitulo = document.getElementById('qr-overlay-titulo');
+    const overlayNombre = document.getElementById('qr-overlay-nombre');
+    const overlayMensaje = document.getElementById('qr-overlay-mensaje');
+    const overlayIcono = document.getElementById('qr-overlay-icono');
+    const overlayBarra = document.getElementById('qr-overlay-barra-progreso');
 
-            if (error || !socio) {
-                alertaIngreso.className = 'alerta-ingreso error';
-                alertaTitulo.textContent = 'Código QR No Válido';
-                alertaMensaje.textContent = 'El código QR no corresponde a ningún socio';
-                alertaIcono.innerHTML = iconoError;
-                alertaIngreso.classList.remove('oculta');
+    function mostrarOverlay(tipo, nombre, mensaje) {
+        // Icono según tipo
+        const svgExito = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+        const svgError = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
 
-                setTimeout(() => {
-                    alertaIngreso.classList.add('oculta');
-                }, 4000);
+        overlay.className = `qr-overlay-resultado ${tipo}`;
+        overlayTitulo.textContent = tipo === 'exito' ? 'ACCESO PERMITIDO' : 'ACCESO DENEGADO';
+        overlayNombre.textContent = nombre;
+        overlayMensaje.textContent = mensaje;
+        overlayIcono.innerHTML = tipo === 'exito' ? svgExito : svgError;
 
-                procesandoQr = false;
-                return;
-            }
+        // Reiniciar barra y arrancar animación
+        overlayBarra.style.animation = 'none';
+        overlayBarra.offsetHeight; // forzar reflow
+        overlayBarra.style.animation = 'barraTemporizador 5s linear forwards';
 
-            const membresia = await validarMembresiaSocio(socio.id);
+        reproducirSonido(tipo === 'exito' ? 'exito' : 'error');
 
-            if (!membresia) {
-                await supabaseClient
-                    .from('asistencias')
-                    .insert({
-                        gimnasio_id: GIMNASIO_ID,
-                        socio_id: socio.id,
-                        estado: 'denegado',
-                        tipo_registro: 'qr'
-                    });
-
-                alertaIngreso.className = 'alerta-ingreso error';
-                alertaTitulo.textContent = 'Acceso Denegado';
-                alertaMensaje.textContent = `${socio.nombre} ${socio.apellido} - Membresía vencida o inactiva`;
-                alertaIcono.innerHTML = iconoError;
-                alertaIngreso.classList.remove('oculta');
-
-                setTimeout(() => {
-                    alertaIngreso.classList.add('oculta');
-                }, 4000);
-
-                procesandoQr = false;
-                return;
-            }
-
-            await supabaseClient
-                .from('asistencias')
-                .insert({
-                    gimnasio_id: GIMNASIO_ID,
-                    socio_id: socio.id,
-                    estado: 'ingreso',
-                    tipo_registro: 'qr'
-                });
-
-            const nombrePlan = membresia.planes ? (Array.isArray(membresia.planes) ? membresia.planes[0].nombre : membresia.planes.nombre) : 'Plan';
-            alertaIngreso.className = 'alerta-ingreso exito';
-            alertaTitulo.textContent = 'Acceso Autorizado';
-            alertaMensaje.textContent = `${socio.nombre} ${socio.apellido} - ${nombrePlan} (Al día)`;
-            alertaIcono.innerHTML = iconoExito;
-            alertaIngreso.classList.remove('oculta');
-
-            const iniciales = (socio.nombre.charAt(0) + socio.apellido.charAt(0)).toUpperCase();
-            qrResultadoInicial.textContent = iniciales;
-            qrResultadoNombre.textContent = `${socio.nombre} ${socio.apellido}`;
-            qrResultadoEstado.textContent = nombrePlan;
-            qrResultado.classList.remove('oculta');
-
-            const filtroVal = document.getElementById('filtro-fecha-asistencia').value;
-            cargarAsistencias(filtroVal);
-
-            setTimeout(() => {
-                alertaIngreso.classList.add('oculta');
-                qrResultado.classList.add('oculta');
-                procesandoQr = false;
-            }, 3000);
-
-        } catch (err) {
-            console.error('Error procesando QR:', err);
+        // Ocultar después de 5 segundos y reactivar escáner
+        setTimeout(() => {
+            overlay.className = 'qr-overlay-resultado oculto';
             procesandoQr = false;
-        }
+        }, 5000);
     }
+
+    try {
+        const { data: socio, error } = await supabaseClient
+            .from('socios')
+            .select('id, nombre, apellido')
+            .eq('qr_token', qrToken)
+            .eq('gimnasio_id', GIMNASIO_ID)
+            .single();
+
+        if (error || !socio) {
+            mostrarOverlay('error', 'QR No Válido', 'Este código no pertenece a ningún socio');
+            return;
+        }
+
+        const membresia = await validarMembresiaSocio(socio.id);
+        const nombreCompleto = `${socio.nombre} ${socio.apellido}`;
+
+        if (!membresia) {
+            await supabaseClient.from('asistencias').insert({
+                gimnasio_id: GIMNASIO_ID,
+                socio_id: socio.id,
+                estado: 'denegado',
+                tipo_registro: 'qr'
+            });
+            mostrarOverlay('error', nombreCompleto, 'Membresía vencida o inactiva');
+            return;
+        }
+
+        await supabaseClient.from('asistencias').insert({
+            gimnasio_id: GIMNASIO_ID,
+            socio_id: socio.id,
+            estado: 'ingreso',
+            tipo_registro: 'qr'
+        });
+
+        const filtroVal = document.getElementById('filtro-fecha-asistencia').value;
+        cargarAsistencias(filtroVal);
+
+        mostrarOverlay('exito', nombreCompleto, '¡Bienvenido/a!');
+
+    } catch (err) {
+        console.error('Error procesando QR:', err);
+        procesandoQr = false;
+    }
+}
 
     if (btnIniciarScanner) {
         btnIniciarScanner.addEventListener('click', async () => {
