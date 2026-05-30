@@ -522,60 +522,72 @@ async function procesarQR(qrToken) {
     }
 }
 
-if (btnIniciarScanner) {
-    btnIniciarScanner.addEventListener('click', async () => {
-        if (escainerActivo) return;
+    if (btnIniciarScanner) {
+        btnIniciarScanner.addEventListener('click', async () => {
+            if (escainerActivo) return;
 
-        escainerActivo = true;
-        document.getElementById('qr-scanner-fullscreen').classList.remove('oculto');
+            escainerActivo = true;
+            btnIniciarScanner.classList.add('oculta');
+            btnDetenerScanner.classList.remove('oculta');
+            qrReader.classList.remove('oculta');
+            qrResultado.classList.add('oculta');
 
-        try {
-            html5QrcodeScanner = new Html5Qrcode('qr-reader');
+            try {
+                html5QrcodeScanner = new Html5Qrcode('qr-reader');
 
-            await html5QrcodeScanner.start(
-                { facingMode: 'environment' },
-                {
-                    fps: 15,
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0,
-                    disableFlip: false,
-                    showTorchButtonIfSupported: false,
-                    showZoomSliderIfSupported: false,
-                    defaultZoomValueIfSupported: 1,
-                    rememberLastUsedCamera: true
-                },
-                (decodedText) => {
-                    procesarQR(decodedText);
-                },
-                () => {}
-            );
+                // ✅ Arranca directo, sin botón intermedio
+                await html5QrcodeScanner.start(
+                    { facingMode: 'environment' },  // cámara trasera
+                    {
+                        fps: 15,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0,
+                        disableFlip: false,
+                        // ✅ Esta es la clave: oculta el botón nativo de la librería
+                        showTorchButtonIfSupported: false,
+                        showZoomSliderIfSupported: false,
+                        defaultZoomValueIfSupported: 1,
+                        rememberLastUsedCamera: true
+                    },
+                    (decodedText) => {
+                        procesarQR(decodedText);
+                    },
+                    () => {} // errores silenciosos mientras busca
+                );
 
-        } catch (err) {
-            console.error('Error iniciando escáner:', err);
-            alert('No se pudo acceder a la cámara');
-            escainerActivo = false;
-            document.getElementById('qr-scanner-fullscreen').classList.add('oculto');
-        }
-    });
-}
+            } catch (err) {
+                console.error('Error iniciando escáner:', err);
+                alert('No se pudo acceder a la cámara');
+                escainerActivo = false;
+                btnIniciarScanner.classList.remove('oculta');
+                btnDetenerScanner.classList.add('oculta');
+                qrReader.classList.add('oculta');
+            }
+        });
+    }
+    
+    if (btnDetenerScanner) {
+        btnDetenerScanner.addEventListener('click', async () => {
+            if (!escainerActivo) return;
 
-// Detener escáner — ahora busca el botón dentro del fullscreen
-document.addEventListener('click', async (e) => {
-    if (!e.target.closest('#btn-detener-scanner')) return;
-    if (!escainerActivo) return;
-
-    try {
-        if (html5QrcodeScanner) {
-            await html5QrcodeScanner.stop();
-            html5QrcodeScanner = null;
-        }
-        escainerActivo = false;
-        procesandoQr = false;
-        document.getElementById('qr-scanner-fullscreen').classList.add('oculto');
-    } catch (err) {
-        console.error('Error deteniendo escáner:', err);
+            try {
+                if (html5QrcodeScanner) {
+                    await html5QrcodeScanner.stop();
+                    html5QrcodeScanner = null;
+                }
+                escainerActivo = false;
+                procesandoQr = false;
+                btnIniciarScanner.classList.remove('oculta');
+                btnDetenerScanner.classList.add('oculta');
+                qrReader.classList.add('oculta');
+                qrResultado.classList.add('oculta');
+            } catch (err) {
+                console.error('Error deteniendo escáner:', err);
+            }
+        });
     }
 });
+
 
 // --- LOGICA DEL FOOTER DEL SIDEBAR ---
 async function cargarDatosUsuario() {
@@ -640,4 +652,4 @@ if (btnLogout) {
             window.location.href = "index.html";
         }
     });
-}});
+}
