@@ -563,13 +563,11 @@ window.eliminarSocio = async (id) => {
 
 
 window.verDetalles = async (id) => {
-    // Agrega esto al principio de la función verDetalles
     document.querySelectorAll('.dropdown-acciones').forEach(d => d.classList.remove('activo'));
     const modal = document.getElementById('modal-ver-socio');
     const cuerpoModal = modal.querySelector('.detalles-body');
 
     try {
-        // 1. Obtener los datos completos del socio desde Supabase
         const { data: socio, error } = await supabaseClient
             .from('socios')
             .select(`
@@ -588,14 +586,12 @@ window.verDetalles = async (id) => {
 
         if (error) throw error;
 
-        // 2. Procesar datos (Fechas, Iniciales, Estado)
         const membresia = socio.membresias_socios?.[0];
         const plan = membresia?.planes;
         const hoy = new Date();
         const venc = membresia ? new Date(membresia.fecha_vencimiento) : null;
         const iniciales = `${socio.nombre[0]}${socio.apellido[0]}`.toUpperCase();
 
-        // Determinar estado para el badge del modal
         let claseEstado = 'vencido';
         let textoEstado = 'VENCIDO';
         if (venc && venc > hoy) {
@@ -603,7 +599,6 @@ window.verDetalles = async (id) => {
             textoEstado = 'ACTIVO';
         }
 
-        // 3. Inyectar el contenido dinámicamente en el HTML del modal
         cuerpoModal.innerHTML = `
             <div class="detalles-header">
                 <div class="inicial-grande">${iniciales}</div>
@@ -612,7 +607,7 @@ window.verDetalles = async (id) => {
                     <p class="estado-badge ${claseEstado}">${textoEstado}</p>
                 </div>
             </div>
-            
+
             <div class="info-grid">
                 <div class="info-item">
                     <span>Email</span>
@@ -655,9 +650,29 @@ window.verDetalles = async (id) => {
                     <p class="${venc < hoy ? 'texto-vencido' : ''}">${venc ? venc.toLocaleDateString('es-AR') : '---'}</p>
                 </div>
             </div>
+
+            <div class="separador">
+                <p>CÓDIGO QR DE ACCESO</p>
+                <div class="linea"></div>
+            </div>
+
+            <div class="qr-card">
+                <div class="qr-container" id="qr-container-${id}"></div>
+                <div class="qr-info">
+                    <p class="qr-nombre">${socio.nombre} ${socio.apellido}</p>
+                </div>
+                <button class="btn-descargar-qr" onclick="descargarQR('${socio.nombre}', '${socio.apellido}', '${id}')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Descargar QR
+                </button>
+            </div>
         `;
 
-        // 4. Mostrar el modal
+        generarQR(socio.qr_token, id);
         modal.classList.add('abierto');
 
     } catch (err) {
@@ -999,6 +1014,56 @@ if (formRenovar) {
 
 
 
+
+
+// --- FUNCIONES PARA GENERAR Y DESCARGAR QR ---
+function generarQR(qrToken, socioId) {
+    const container = document.getElementById(`qr-container-${socioId}`);
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    try {
+        const qr = qrcode(0, 'M');
+        qr.addData(qrToken);
+        qr.make();
+
+        const qrElement = document.createElement('div');
+        qrElement.innerHTML = qr.createImgTag(8);
+        container.appendChild(qrElement);
+    } catch (err) {
+        console.error('Error generando QR:', err);
+        container.innerHTML = '<p style="color: var(--color-rojo);">Error al generar QR</p>';
+    }
+}
+
+window.descargarQR = async (nombre, apellido, socioId) => {
+    try {
+        const container = document.getElementById(`qr-container-${socioId}`);
+        if (!container) return;
+
+        const svg = container.querySelector('img');
+        if (!svg) {
+            alert('Error: No se encontró el QR para descargar');
+            return;
+        }
+
+        const canvas = await html2canvas(container, {
+            backgroundColor: '#ffffff',
+            scale: 2
+        });
+
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = `QR-${nombre}-${apellido}.png`;
+        link.click();
+
+        alert('✅ QR descargado correctamente');
+    } catch (err) {
+        console.error('Error descargando QR:', err);
+        alert('Error al descargar el QR');
+    }
+};
 
 
 // --- LOGICA DEL FOOTER DEL SIDEBAR ---

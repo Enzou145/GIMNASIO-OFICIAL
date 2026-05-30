@@ -941,6 +941,73 @@ background-color: var(--texto-secundario);
     color: var(--estado-vencido) !important;
 }
 
+/* ================= CARD QR DE ACCESO ================ */
+.qr-card {
+    background: var(--color-tarjeta-elevada);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.qr-container {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--borde-input);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 220px;
+    min-height: 220px;
+}
+
+.qr-container img {
+    max-width: 100%;
+    height: auto;
+}
+
+.qr-info {
+    text-align: center;
+    width: 100%;
+}
+
+.qr-nombre {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--texto-principal);
+    margin: 0;
+}
+
+.btn-descargar-qr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--color-rojo);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    letter-spacing: 0.5px;
+}
+
+.btn-descargar-qr:hover {
+    background-color: var(--color-rojo-brillo);
+    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
+}
+
+.btn-descargar-qr:active {
+    transform: translateY(1px);
+}
+
 
 
 #contenedor-socios-real{
