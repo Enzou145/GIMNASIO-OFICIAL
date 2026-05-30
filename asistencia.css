@@ -894,3 +894,18 @@ min-width: 180px;}
     font-size: 24px;
   }
 }
+
+
+
+/* Ocultar botones internos de html5-qrcode */
+#qr-reader__scan_region button,
+#qr-reader__dashboard,
+#qr-reader__dashboard_section,
+#qr-reader__header_message {
+    display: none !important;
+}
+
+#qr-reader video {
+    width: 100% !important;
+    border-radius: 8px;
+}

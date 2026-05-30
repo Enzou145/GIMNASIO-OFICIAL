@@ -504,26 +504,29 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 html5QrcodeScanner = new Html5Qrcode('qr-reader');
 
-                const handleScanSuccess = (decodedText, decodedResult) => {
-                    procesarQR(decodedText);
-                };
-
-                const handleScanError = (error) => {
-                    // Ignorar errores de escaneo continuos
-                };
-
+                // ✅ Arranca directo, sin botón intermedio
                 await html5QrcodeScanner.start(
-                    { facingMode: 'environment' },
+                    { facingMode: 'environment' },  // cámara trasera
                     {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 }
+                        fps: 15,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0,
+                        disableFlip: false,
+                        // ✅ Esta es la clave: oculta el botón nativo de la librería
+                        showTorchButtonIfSupported: false,
+                        showZoomSliderIfSupported: false,
+                        defaultZoomValueIfSupported: 1,
+                        rememberLastUsedCamera: true
                     },
-                    handleScanSuccess,
-                    handleScanError
+                    (decodedText) => {
+                        procesarQR(decodedText);
+                    },
+                    () => {} // errores silenciosos mientras busca
                 );
+
             } catch (err) {
                 console.error('Error iniciando escáner:', err);
-                alert('Error al iniciar el escáner de cámara');
+                alert('No se pudo acceder a la cámara');
                 escainerActivo = false;
                 btnIniciarScanner.classList.remove('oculta');
                 btnDetenerScanner.classList.add('oculta');
@@ -531,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
+    
     if (btnDetenerScanner) {
         btnDetenerScanner.addEventListener('click', async () => {
             if (!escainerActivo) return;
