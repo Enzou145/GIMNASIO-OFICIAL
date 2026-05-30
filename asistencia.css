@@ -464,8 +464,153 @@ min-width: 180px;}
     flex-direction: column;
     gap: 10px;}
 
+/* ================= CARD QR SCANNER ================ */
+.card-qr-scanner {
+    background-color: var(--color-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: var(--sombra-tarjeta);
+    position: relative;
+    overflow: visible;
+    width: 100%;
+}
+
+.card-qr-scanner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--color-rojo);
+    box-shadow: var(--sombra-glow-rojo);
+    border-radius: 16px 0 0 16px;
+}
+
+.card-qr-scanner h2 {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--texto-principal);
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.card-qr-scanner p {
+    font-size: 13px;
+    color: var(--texto-secundario);
+    margin-bottom: 25px;
+}
+
+.qr-scanner-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.btn-scanner-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--color-rojo);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--sombra-glow-rojo);
+    transition: background-color 0.2s, transform 0.1s;
+    flex: 1;
+}
+
+.btn-scanner-action:hover {
+    background-color: var(--color-rojo-brillo);
+}
+
+.btn-scanner-action:active {
+    transform: translateY(2px);
+}
+
+.btn-scanner-action.detener {
+    background-color: var(--texto-secundario);
+    box-shadow: none;
+}
+
+.btn-scanner-action.detener:hover {
+    background-color: var(--color-rojo);
+}
+
+.btn-scanner-action.oculta {
+    display: none;
+}
+
+.qr-reader {
+    width: 100%;
+    border: 2px solid var(--borde-tarjeta);
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--color-fondo-suave);
+    margin-bottom: 20px;
+}
+
+.qr-reader.oculta {
+    display: none;
+}
+
+#qr-reader {
+    width: 100%;
+    min-height: 300px;
+}
+
+.qr-resultado {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    background-color: var(--color-fondo-suave);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.qr-resultado.oculta {
+    display: none;
+}
+
+.qr-resultado-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--color-rojo);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.qr-resultado-info {
+    flex: 1;
+}
+
+.qr-resultado-info h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--texto-principal);
+    margin-bottom: 2px;
+}
+
+.qr-resultado-info p {
+    font-size: 12px;
+    color: var(--texto-secundario);
+}
+
 /* ============================================
-   RESPONSIVE — DESKTOP (ocultar hamburguesa)
+   RESPONSIVE ï¿½ DESKTOP (ocultar hamburguesa)
    ============================================ */
 * {
   box-sizing: border-box;
@@ -476,7 +621,7 @@ min-width: 180px;}
 }
 
 /* ============================================
-   RESPONSIVE — TABLET (768px - 1100px)
+   RESPONSIVE ï¿½ TABLET (768px - 1100px)
    ============================================ */
 @media (max-width: 1100px) and (min-width: 769px) {
 
@@ -490,6 +635,17 @@ min-width: 180px;}
 
   .asistencia-header {
     gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .card-escaner {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .card-qr-scanner {
+    flex: 1;
+    min-width: 250px;
   }
 
   .tarjeta-asistencia {
@@ -509,7 +665,7 @@ min-width: 180px;}
 }
 
 /* ============================================
-   RESPONSIVE — MOBILE (max 768px)
+   RESPONSIVE ï¿½ MOBILE (max 768px)
    ============================================ */
 @media (max-width: 768px) {
 
@@ -605,7 +761,7 @@ min-width: 180px;}
     font-size: 20px;
   }
 
-  /* ASISTENCIA HEADER — apilar escaner y tarjeta */
+  /* ASISTENCIA HEADER ï¿½ apilar escaner y tarjeta */
   .asistencia-header {
     flex-direction: column;
     gap: 16px;
@@ -619,7 +775,7 @@ min-width: 180px;}
     padding: 16px 20px;
   }
 
-  /* FORM ESCANER — botón debajo del input */
+  /* FORM ESCANER ï¿½ botï¿½n debajo del input */
   .form-escaner {
     flex-direction: column;
     gap: 10px;
@@ -639,7 +795,27 @@ min-width: 180px;}
     font-size: 17px;
   }
 
-  /* HISTORIAL — header con filtro fecha */
+  .card-qr-scanner {
+    padding: 20px 16px;
+  }
+
+  .card-qr-scanner h2 {
+    font-size: 17px;
+  }
+
+  .qr-scanner-controls {
+    flex-direction: column;
+  }
+
+  .btn-scanner-action {
+    width: 100%;
+  }
+
+  #qr-reader {
+    min-height: 250px;
+  }
+
+  /* HISTORIAL ï¿½ header con filtro fecha */
   .membresias-header {
     flex-direction: column;
     align-items: flex-start;
@@ -655,7 +831,7 @@ min-width: 180px;}
     justify-content: space-between;
   }
 
-  /* TABLA ASISTENCIA — ocultar columna hora en mobile muy pequeño */
+  /* TABLA ASISTENCIA ï¿½ ocultar columna hora en mobile muy pequeï¿½o */
   #tabla-asistencia .titulo-tabla-clientes {
     display: none;
   }
@@ -684,7 +860,7 @@ min-width: 180px;}
     margin-left: 48px;
   }
 
-  /* ALERTA DINÁMICA */
+  /* ALERTA DINï¿½MICA */
   .alerta-ingreso {
     padding: 14px 16px;
     gap: 12px;
@@ -702,7 +878,7 @@ min-width: 180px;}
 }
 
 /* ============================================
-   RESPONSIVE — MOBILE PEQUEÑO (max 480px)
+   RESPONSIVE ï¿½ MOBILE PEQUEï¿½O (max 480px)
    ============================================ */
 @media (max-width: 480px) {
 

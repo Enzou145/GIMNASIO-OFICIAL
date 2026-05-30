@@ -328,11 +328,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const { error } = await supabaseClient
-                .from('asistencias')
-                .insert({
-                    gimnasio_id: GIMNASIO_ID,
-                    socio_id: socio.id
-                });
+            .from('asistencias')
+            .insert({
+                gimnasio_id: GIMNASIO_ID,
+                socio_id: socio.id,
+                estado: 'ingreso',
+                tipo_registro: 'manual'
+            });
                 
             if (error) {
                 console.error("Error registrando asistencia", error);
@@ -360,6 +362,196 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- LÓGICA ESCÁNER QR ---
+    let html5QrcodeScanner = null;
+    let escainerActivo = false;
+    let procesandoQr = false;
+
+    const btnIniciarScanner = document.getElementById('btn-iniciar-scanner');
+    const btnDetenerScanner = document.getElementById('btn-detener-scanner');
+    const qrReader = document.getElementById('qr-reader');
+    const qrResultado = document.getElementById('qr-resultado');
+    const qrResultadoInicial = document.getElementById('qr-resultado-inicial');
+    const qrResultadoNombre = document.getElementById('qr-resultado-nombre');
+    const qrResultadoEstado = document.getElementById('qr-resultado-estado');
+
+    async function validarMembresiaSocio(socioId) {
+        try {
+            const { data: membresia, error } = await supabaseClient
+                .from('membresias_socios')
+                .select('*, planes(nombre)')
+                .eq('socio_id', socioId)
+                .eq('gimnasio_id', GIMNASIO_ID)
+                .eq('estado', 'Activa')
+                .single();
+
+            if (error || !membresia) return null;
+
+            const hoyIso = new Date().toISOString().split('T')[0];
+            const hoyF = new Date(hoyIso + 'T00:00:00');
+            const vencObj = new Date(membresia.fecha_vencimiento + 'T00:00:00');
+
+            if (vencObj >= hoyF) {
+                return membresia;
+            }
+            return null;
+        } catch (err) {
+            console.error('Error validando membresía:', err);
+            return null;
+        }
+    }
+
+    async function procesarQR(qrToken) {
+        if (procesandoQr) return;
+        procesandoQr = true;
+
+        try {
+            const { data: socio, error } = await supabaseClient
+                .from('socios')
+                .select('id, nombre, apellido')
+                .eq('qr_token', qrToken)
+                .eq('gimnasio_id', GIMNASIO_ID)
+                .single();
+
+            if (error || !socio) {
+                alertaIngreso.className = 'alerta-ingreso error';
+                alertaTitulo.textContent = 'Código QR No Válido';
+                alertaMensaje.textContent = 'El código QR no corresponde a ningún socio';
+                alertaIcono.innerHTML = iconoError;
+                alertaIngreso.classList.remove('oculta');
+
+                setTimeout(() => {
+                    alertaIngreso.classList.add('oculta');
+                }, 4000);
+
+                procesandoQr = false;
+                return;
+            }
+
+            const membresia = await validarMembresiaSocio(socio.id);
+
+            if (!membresia) {
+                await supabaseClient
+                    .from('asistencias')
+                    .insert({
+                        gimnasio_id: GIMNASIO_ID,
+                        socio_id: socio.id,
+                        estado: 'denegado',
+                        tipo_registro: 'qr'
+                    });
+
+                alertaIngreso.className = 'alerta-ingreso error';
+                alertaTitulo.textContent = 'Acceso Denegado';
+                alertaMensaje.textContent = `${socio.nombre} ${socio.apellido} - Membresía vencida o inactiva`;
+                alertaIcono.innerHTML = iconoError;
+                alertaIngreso.classList.remove('oculta');
+
+                setTimeout(() => {
+                    alertaIngreso.classList.add('oculta');
+                }, 4000);
+
+                procesandoQr = false;
+                return;
+            }
+
+            await supabaseClient
+                .from('asistencias')
+                .insert({
+                    gimnasio_id: GIMNASIO_ID,
+                    socio_id: socio.id,
+                    estado: 'ingreso',
+                    tipo_registro: 'qr'
+                });
+
+            const nombrePlan = membresia.planes ? (Array.isArray(membresia.planes) ? membresia.planes[0].nombre : membresia.planes.nombre) : 'Plan';
+            alertaIngreso.className = 'alerta-ingreso exito';
+            alertaTitulo.textContent = 'Acceso Autorizado';
+            alertaMensaje.textContent = `${socio.nombre} ${socio.apellido} - ${nombrePlan} (Al día)`;
+            alertaIcono.innerHTML = iconoExito;
+            alertaIngreso.classList.remove('oculta');
+
+            const iniciales = (socio.nombre.charAt(0) + socio.apellido.charAt(0)).toUpperCase();
+            qrResultadoInicial.textContent = iniciales;
+            qrResultadoNombre.textContent = `${socio.nombre} ${socio.apellido}`;
+            qrResultadoEstado.textContent = nombrePlan;
+            qrResultado.classList.remove('oculta');
+
+            const filtroVal = document.getElementById('filtro-fecha-asistencia').value;
+            cargarAsistencias(filtroVal);
+
+            setTimeout(() => {
+                alertaIngreso.classList.add('oculta');
+                qrResultado.classList.add('oculta');
+                procesandoQr = false;
+            }, 3000);
+
+        } catch (err) {
+            console.error('Error procesando QR:', err);
+            procesandoQr = false;
+        }
+    }
+
+    if (btnIniciarScanner) {
+        btnIniciarScanner.addEventListener('click', async () => {
+            if (escainerActivo) return;
+
+            escainerActivo = true;
+            btnIniciarScanner.classList.add('oculta');
+            btnDetenerScanner.classList.remove('oculta');
+            qrReader.classList.remove('oculta');
+            qrResultado.classList.add('oculta');
+
+            try {
+                html5QrcodeScanner = new Html5Qrcode('qr-reader');
+
+                const handleScanSuccess = (decodedText, decodedResult) => {
+                    procesarQR(decodedText);
+                };
+
+                const handleScanError = (error) => {
+                    // Ignorar errores de escaneo continuos
+                };
+
+                await html5QrcodeScanner.start(
+                    { facingMode: 'environment' },
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    handleScanSuccess,
+                    handleScanError
+                );
+            } catch (err) {
+                console.error('Error iniciando escáner:', err);
+                alert('Error al iniciar el escáner de cámara');
+                escainerActivo = false;
+                btnIniciarScanner.classList.remove('oculta');
+                btnDetenerScanner.classList.add('oculta');
+                qrReader.classList.add('oculta');
+            }
+        });
+    }
+
+    if (btnDetenerScanner) {
+        btnDetenerScanner.addEventListener('click', async () => {
+            if (!escainerActivo) return;
+
+            try {
+                if (html5QrcodeScanner) {
+                    await html5QrcodeScanner.stop();
+                    html5QrcodeScanner = null;
+                }
+                escainerActivo = false;
+                procesandoQr = false;
+                btnIniciarScanner.classList.remove('oculta');
+                btnDetenerScanner.classList.add('oculta');
+                qrReader.classList.add('oculta');
+                qrResultado.classList.add('oculta');
+            } catch (err) {
+                console.error('Error deteniendo escáner:', err);
+            }
+        });
+    }
 });
 
 
