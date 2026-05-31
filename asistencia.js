@@ -406,6 +406,7 @@ function reproducirSonido(tipo) {
     let html5QrcodeScanner = null;
     let escainerActivo = false;
     let procesandoQr = false;
+    let cameraFacingMode = 'environment'; // Frontal: 'user', Trasera: 'environment'
 
     const btnIniciarScanner = document.getElementById('btn-iniciar-scanner');
     const btnDetenerScanner = document.getElementById('btn-detener-scanner');
@@ -414,6 +415,9 @@ function reproducirSonido(tipo) {
     const qrResultadoInicial = document.getElementById('qr-resultado-inicial');
     const qrResultadoNombre = document.getElementById('qr-resultado-nombre');
     const qrResultadoEstado = document.getElementById('qr-resultado-estado');
+
+    const btnCameraFrontal = document.getElementById('btn-camera-frontal');
+    const btnCameraTrasera = document.getElementById('btn-camera-trasera');
 
     async function validarMembresiaSocio(socioId) {
         try {
@@ -537,10 +541,10 @@ async function procesarQR(qrToken) {
 
                 // ✅ Arranca directo, sin botón intermedio
                 await html5QrcodeScanner.start(
-                    { facingMode: 'environment' },  // cámara trasera
+                    { facingMode: cameraFacingMode },
                     {
                         fps: 15,
-                        qrbox: { width: 250, height: 250 },
+                        qrbox: { width: 320, height: 320 },
                         aspectRatio: 1.0,
                         disableFlip: false,
                         // ✅ Esta es la clave: oculta el botón nativo de la librería
@@ -584,6 +588,63 @@ async function procesarQR(qrToken) {
             } catch (err) {
                 console.error('Error deteniendo escáner:', err);
             }
+        });
+    }
+
+    // --- CAMBIAR CÁMARA ---
+    async function cambiarCamara(facingMode) {
+        if (!escainerActivo) return;
+
+        cameraFacingMode = facingMode;
+
+        try {
+            if (html5QrcodeScanner) {
+                await html5QrcodeScanner.stop();
+                html5QrcodeScanner.clear();
+            }
+
+            html5QrcodeScanner = new Html5Qrcode('qr-reader');
+
+            await html5QrcodeScanner.start(
+                { facingMode: cameraFacingMode },
+                {
+                    fps: 15,
+                    qrbox: { width: 320, height: 320 },
+                    aspectRatio: 1.0,
+                    disableFlip: false,
+                    showTorchButtonIfSupported: false,
+                    showZoomSliderIfSupported: false,
+                    defaultZoomValueIfSupported: 1,
+                    rememberLastUsedCamera: true
+                },
+                (decodedText) => {
+                    procesarQR(decodedText);
+                },
+                () => {}
+            );
+
+            // Actualizar estado de botones
+            if (facingMode === 'user') {
+                btnCameraFrontal.classList.add('activa');
+                btnCameraTrasera.classList.remove('activa');
+            } else {
+                btnCameraFrontal.classList.remove('activa');
+                btnCameraTrasera.classList.add('activa');
+            }
+        } catch (err) {
+            console.error('Error cambiando cámara:', err);
+        }
+    }
+
+    if (btnCameraFrontal) {
+        btnCameraFrontal.addEventListener('click', () => {
+            cambiarCamara('user');
+        });
+    }
+
+    if (btnCameraTrasera) {
+        btnCameraTrasera.addEventListener('click', () => {
+            cambiarCamara('environment');
         });
     }
 });

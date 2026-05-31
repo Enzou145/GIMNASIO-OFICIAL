@@ -1117,15 +1117,15 @@ min-width: 180px;}
 /* ================= ESQUINAS DEL MARCO (4) ================ */
 .qr-frame-corner {
     position: absolute;
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     border: 3px solid #e50914;
 }
 
 .qr-frame-corner.top-left {
     top: 50%;
     left: 50%;
-    transform: translate(calc(-50% - 120px), calc(-50% - 120px));
+    transform: translate(calc(-50% - 160px), calc(-50% - 160px));
     border-right: none;
     border-bottom: none;
 }
@@ -1133,7 +1133,7 @@ min-width: 180px;}
 .qr-frame-corner.top-right {
     top: 50%;
     right: 50%;
-    transform: translate(calc(50% + 120px), calc(-50% - 120px));
+    transform: translate(calc(50% + 160px), calc(-50% - 160px));
     border-left: none;
     border-bottom: none;
 }
@@ -1141,7 +1141,7 @@ min-width: 180px;}
 .qr-frame-corner.bottom-left {
     bottom: 50%;
     left: 50%;
-    transform: translate(calc(-50% - 120px), calc(50% + 120px));
+    transform: translate(calc(-50% - 160px), calc(50% + 160px));
     border-right: none;
     border-top: none;
 }
@@ -1149,7 +1149,7 @@ min-width: 180px;}
 .qr-frame-corner.bottom-right {
     bottom: 50%;
     right: 50%;
-    transform: translate(calc(50% + 120px), calc(50% + 120px));
+    transform: translate(calc(50% + 160px), calc(50% + 160px));
     border-left: none;
     border-top: none;
 }
@@ -1216,6 +1216,45 @@ min-width: 180px;}
     display: inline-block;
     animation: dotBlink 1.5s ease-in-out infinite;
     box-shadow: 0 0 8px rgba(229, 9, 20, 0.8);
+}
+
+/* ================= SELECTOR DE CÁMARA ================ */
+.camera-selector {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10002;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-camera-toggle {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-camera-toggle:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-camera-toggle:active {
+    transform: scale(0.98);
+}
+
+.btn-camera-toggle.activa {
+    background-color: #e50914;
+    border-color: #e50914;
+    box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
 }
 
 /* ================= QR SCANNER FULLSCREEN - OLD (mantener por compat.) ================ */
