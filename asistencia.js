@@ -589,6 +589,7 @@ async function procesarQR(qrToken) {
                 overlay.classList.add('oculta');
             }
             document.body.style.overflow = '';
+            document.body.classList.remove('scanner-activo');
         } catch (err) {
             console.error('Error deteniendo escáner:', err);
         }

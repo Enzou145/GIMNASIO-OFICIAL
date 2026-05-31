@@ -343,9 +343,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!qrReaderElement.classList.contains('oculta')) {
                 qrOverlay.classList.remove('oculta');
                 document.body.style.overflow = 'hidden';
+                document.body.classList.add('scanner-activo');
             } else {
                 qrOverlay.classList.add('oculta');
                 document.body.style.overflow = '';
+                document.body.classList.remove('scanner-activo');
             }
         }
     });
@@ -356,6 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!qrReaderElement.classList.contains('oculta')) {
             qrOverlay.classList.remove('oculta');
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('scanner-activo');
         }
     }
 });

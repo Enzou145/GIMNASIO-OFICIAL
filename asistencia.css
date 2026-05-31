@@ -1334,3 +1334,23 @@ min-width: 180px;}
     font-weight: 500;
     text-align: center;
 }
+
+/* ================= SCANNER ACTIVO MEJORAS FULLSCREEN ================ */
+#qr-scanner-fullscreen-overlay:not(.oculta) ~ * .top-bar,
+body.scanner-activo .top-bar {
+    display: none !important;
+}
+body.scanner-activo .sidebar {
+    display: none !important;
+}
+body.scanner-activo .contenido-principal {
+    display: none !important;
+}
+body.scanner-activo #qr-scanner-fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9998;
+}
