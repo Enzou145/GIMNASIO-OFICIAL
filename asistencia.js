@@ -4,7 +4,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
 // LEER EL ID DINÁMICAMENTE
-const GIMNASIO_ID = localStorage.getItem('gimnasio_id'); 
+const GIMNASIO_ID = localStorage.getItem('gimnasio_id');
 
 // PROTECCIÓN: Si no hay ID, mandarlo al login inmediatamente
 if (!GIMNASIO_ID) {
@@ -48,14 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const formAsistencia = document.getElementById('form-asistencia');
     const inputAsistencia = document.getElementById('input-asistencia');
     const dropdownAsistencia = document.getElementById('lista-clientes-dropdown');
-    
+
     const alertaIngreso = document.getElementById('alerta-ingreso');
     const alertaTitulo = document.getElementById('alerta-titulo');
     const alertaMensaje = document.getElementById('alerta-mensaje');
     const alertaIcono = document.querySelector('.alerta-icono svg');
     const tablaAsistencia = document.getElementById('tabla-asistencia');
     const totalIngresosEl = document.querySelector('.tarjeta-valorr');
-    
+
     const previewSocio = document.getElementById('preview-socio');
     const previewInicial = document.getElementById('preview-inicial');
     const previewNombre = document.getElementById('preview-nombre');
@@ -66,42 +66,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const iconoError = '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>';
 
 
-function reproducirSonido(tipo) {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    function reproducirSonido(tipo) {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
 
-    if (tipo === 'exito') {
-        // BEEP limpio y corto - tipo torniquete de metro
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = 'sine';
-        osc.frequency.value = 1050;
-        gain.gain.setValueAtTime(0, ctx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + 0.01);
-        gain.gain.setValueAtTime(0.9, ctx.currentTime + 0.18);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-        osc.start(ctx.currentTime);
-        osc.stop(ctx.currentTime + 0.35);
-
-    } else {
-        // BEEP grave doble - tipo error de sistema
-        [0, 0.35].forEach(inicio => {
+        if (tipo === 'exito') {
+            // BEEP limpio y corto - tipo torniquete de metro
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             osc.connect(gain);
             gain.connect(ctx.destination);
             osc.type = 'sine';
-            osc.frequency.value = 300;
-            gain.gain.setValueAtTime(0, ctx.currentTime + inicio);
-            gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + inicio + 0.01);
-            gain.gain.setValueAtTime(0.9, ctx.currentTime + inicio + 0.2);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + inicio + 0.3);
-            osc.start(ctx.currentTime + inicio);
-            osc.stop(ctx.currentTime + inicio + 0.35);
-        });
+            osc.frequency.value = 1050;
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + 0.01);
+            gain.gain.setValueAtTime(0.9, ctx.currentTime + 0.18);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.35);
+
+        } else {
+            // BEEP grave doble - tipo error de sistema
+            [0, 0.35].forEach(inicio => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.value = 300;
+                gain.gain.setValueAtTime(0, ctx.currentTime + inicio);
+                gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + inicio + 0.01);
+                gain.gain.setValueAtTime(0.9, ctx.currentTime + inicio + 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + inicio + 0.3);
+                osc.start(ctx.currentTime + inicio);
+                osc.stop(ctx.currentTime + inicio + 0.35);
+            });
+        }
     }
-}
 
     let timeoutBuscador = null;
 
@@ -132,7 +132,7 @@ function reproducirSonido(tipo) {
 
         const contenedorFilas = document.getElementById('contenedor-filas-asistencia');
         contenedorFilas.innerHTML = '';
-        
+
         // Calcular fecha local para comparar "hoy" correctamente
         const hoyLocal = new Date();
         const yyyy = hoyLocal.getFullYear();
@@ -158,16 +158,16 @@ function reproducirSonido(tipo) {
         data.forEach(asistencia => {
             const socio = Array.isArray(asistencia.socios) ? asistencia.socios[0] : asistencia.socios;
             if (!socio) return;
-            
+
             const nombreCompleto = `${socio.nombre} ${socio.apellido}`;
             const iniciales = (socio.nombre.charAt(0) + socio.apellido.charAt(0)).toUpperCase();
-            
+
             const fechaIngreso = new Date(asistencia.fecha_hora_ingreso);
-            const hora = fechaIngreso.toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'});
-            
+            const hora = fechaIngreso.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
             let estado = "SIN PLAN";
             let claseEstado = "vencido";
-            
+
             if (socio.membresias_socios && socio.membresias_socios.length > 0) {
                 const mem = Array.isArray(socio.membresias_socios) ? socio.membresias_socios[0] : socio.membresias_socios;
                 estado = mem.estado ? mem.estado.toUpperCase() : "VENCIDA";
@@ -199,7 +199,7 @@ function reproducirSonido(tipo) {
     // Inicializar hoy
     const filtroFecha = document.getElementById('filtro-fecha-asistencia');
     const tituloTabla = document.getElementById('titulo-tabla-asistencia');
-    
+
     // Obtener hoy en zona local
     const hoyParaInit = new Date();
     const initY = hoyParaInit.getFullYear();
@@ -264,13 +264,13 @@ function reproducirSonido(tipo) {
                 <span class="autocomplete-nombre">${nombreCompleto}</span>
                 <span class="autocomplete-dni">${socio.telefono || 'Sin Teléfono'}</span>
             `;
-            
+
             item.addEventListener('click', () => {
                 inputAsistencia.value = nombreCompleto;
                 dropdownAsistencia.classList.remove('activo');
                 mostrarPreviewSocio(socio);
             });
-            
+
             dropdownAsistencia.appendChild(item);
         });
         dropdownAsistencia.classList.add('activo');
@@ -279,7 +279,7 @@ function reproducirSonido(tipo) {
     inputAsistencia.addEventListener('input', (e) => {
         const val = e.target.value.trim();
         previewSocio.classList.add('oculta'); // Ocultar preview al escribir
-        
+
         clearTimeout(timeoutBuscador);
         timeoutBuscador = setTimeout(() => {
             buscarSocios(val);
@@ -302,24 +302,24 @@ function reproducirSonido(tipo) {
 
     function mostrarPreviewSocio(socio) {
         socioSeleccionadoParaIngreso = socio;
-        
+
         const nombreCompleto = `${socio.nombre} ${socio.apellido}`;
         previewInicial.textContent = (socio.nombre.charAt(0) + socio.apellido.charAt(0)).toUpperCase();
         previewNombre.textContent = nombreCompleto;
         previewDni.textContent = socio.telefono || 'Sin teléfono';
-        
+
         let estado = 'vencido';
         let textoEstado = 'SIN PLAN / VENCIDO';
-        
+
         if (socio.membresias_socios && socio.membresias_socios.length > 0) {
             const mem = Array.isArray(socio.membresias_socios) ? socio.membresias_socios[0] : socio.membresias_socios;
-            
+
             const hoyIso = new Date().toISOString().split('T')[0];
             const hoyF = new Date(hoyIso + 'T00:00:00');
             const vencObj = new Date(mem.fecha_vencimiento + 'T00:00:00');
             const diffTime = vencObj - hoyF;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
+
             const nombrePlan = mem.planes ? (Array.isArray(mem.planes) ? mem.planes[0].nombre : mem.planes.nombre) : 'Plan';
 
             if (mem.estado === 'Vencida' || diffDays < 0) {
@@ -337,7 +337,7 @@ function reproducirSonido(tipo) {
         previewSocio.querySelector('.preview-estado').className = 'preview-estado ' + estado;
         previewBadge.textContent = textoEstado;
         previewSocio.classList.remove('oculta');
-        
+
         socioSeleccionadoParaIngreso.estadoComputado = estado;
         socioSeleccionadoParaIngreso.textoEstado = textoEstado;
     }
@@ -346,35 +346,35 @@ function reproducirSonido(tipo) {
     if (formAsistencia) {
         formAsistencia.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             if (!socioSeleccionadoParaIngreso) {
                 return;
             }
 
             const socio = socioSeleccionadoParaIngreso;
-            
+
             if (socio.estadoComputado === 'vencido') {
                 alertaIngreso.className = 'alerta-ingreso error';
                 alertaTitulo.textContent = 'Acceso Denegado';
                 reproducirSonido('error'); // ✅ Sonido de error
                 alertaMensaje.textContent = `${socio.nombre} ${socio.apellido} - ${socio.textoEstado}`;
                 alertaIcono.innerHTML = iconoError;
-                
+
                 setTimeout(() => {
                     alertaIngreso.classList.add('oculta');
                 }, 4000);
-                return; 
+                return;
             }
 
             const { error } = await supabaseClient
-            .from('asistencias')
-            .insert({
-                gimnasio_id: GIMNASIO_ID,
-                socio_id: socio.id,
-                estado: 'ingreso',
-                tipo_registro: 'manual'
-            });
-                
+                .from('asistencias')
+                .insert({
+                    gimnasio_id: GIMNASIO_ID,
+                    socio_id: socio.id,
+                    estado: 'ingreso',
+                    tipo_registro: 'manual'
+                });
+
             if (error) {
                 console.error("Error registrando asistencia", error);
                 alert("Error al registrar: " + error.message);
@@ -386,7 +386,7 @@ function reproducirSonido(tipo) {
             reproducirSonido('exito'); // ✅ Sonido de éxito
             alertaMensaje.textContent = `${socio.nombre} ${socio.apellido} - ${socio.textoEstado}`;
             alertaIcono.innerHTML = iconoExito;
-            
+
             setTimeout(() => {
                 alertaIngreso.classList.add('oculta');
             }, 4000);
@@ -394,10 +394,10 @@ function reproducirSonido(tipo) {
             inputAsistencia.value = '';
             previewSocio.classList.add('oculta');
             socioSeleccionadoParaIngreso = null;
-            
+
             const filtroVal = document.getElementById('filtro-fecha-asistencia').value;
             cargarAsistencias(filtroVal);
-            
+
             inputAsistencia.focus();
         });
     }
@@ -441,86 +441,86 @@ function reproducirSonido(tipo) {
         }
     }
 
-async function procesarQR(qrToken) {
-    if (procesandoQr) return;
-    procesandoQr = true;
+    async function procesarQR(qrToken) {
+        if (procesandoQr) return;
+        procesandoQr = true;
 
-    const overlay = document.getElementById('qr-overlay-resultado');
-    const overlayTitulo = document.getElementById('qr-overlay-titulo');
-    const overlayNombre = document.getElementById('qr-overlay-nombre');
-    const overlayMensaje = document.getElementById('qr-overlay-mensaje');
-    const overlayIcono = document.getElementById('qr-overlay-icono');
-    const overlayBarra = document.getElementById('qr-overlay-barra-progreso');
+        const overlay = document.getElementById('qr-overlay-resultado');
+        const overlayTitulo = document.getElementById('qr-overlay-titulo');
+        const overlayNombre = document.getElementById('qr-overlay-nombre');
+        const overlayMensaje = document.getElementById('qr-overlay-mensaje');
+        const overlayIcono = document.getElementById('qr-overlay-icono');
+        const overlayBarra = document.getElementById('qr-overlay-barra-progreso');
 
-    function mostrarOverlay(tipo, nombre, mensaje) {
-        // Icono según tipo
-        const svgExito = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
-        const svgError = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+        function mostrarOverlay(tipo, nombre, mensaje) {
+            // Icono según tipo
+            const svgExito = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+            const svgError = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
 
-        overlay.className = `qr-overlay-resultado ${tipo}`;
-        overlayTitulo.textContent = tipo === 'exito' ? 'ACCESO PERMITIDO' : 'ACCESO DENEGADO';
-        overlayNombre.textContent = nombre;
-        overlayMensaje.textContent = mensaje;
-        overlayIcono.innerHTML = tipo === 'exito' ? svgExito : svgError;
+            overlay.className = `qr-overlay-resultado ${tipo}`;
+            overlayTitulo.textContent = tipo === 'exito' ? 'ACCESO PERMITIDO' : 'ACCESO DENEGADO';
+            overlayNombre.textContent = nombre;
+            overlayMensaje.textContent = mensaje;
+            overlayIcono.innerHTML = tipo === 'exito' ? svgExito : svgError;
 
-        // Reiniciar barra y arrancar animación
-        overlayBarra.style.animation = 'none';
-        overlayBarra.offsetHeight; // forzar reflow
-        overlayBarra.style.animation = 'barraTemporizador 5s linear forwards';
+            // Reiniciar barra y arrancar animación
+            overlayBarra.style.animation = 'none';
+            overlayBarra.offsetHeight; // forzar reflow
+            overlayBarra.style.animation = 'barraTemporizador 5s linear forwards';
 
-        reproducirSonido(tipo === 'exito' ? 'exito' : 'error');
+            reproducirSonido(tipo === 'exito' ? 'exito' : 'error');
 
-        // Ocultar después de 5 segundos y reactivar escáner
-        setTimeout(() => {
-            overlay.className = 'qr-overlay-resultado oculto';
-            procesandoQr = false;
-        }, 5000);
-    }
-
-    try {
-        const { data: socio, error } = await supabaseClient
-            .from('socios')
-            .select('id, nombre, apellido')
-            .eq('qr_token', qrToken)
-            .eq('gimnasio_id', GIMNASIO_ID)
-            .single();
-
-        if (error || !socio) {
-            mostrarOverlay('error', 'QR No Válido', 'Este código no pertenece a ningún socio');
-            return;
+            // Ocultar después de 5 segundos y reactivar escáner
+            setTimeout(() => {
+                overlay.className = 'qr-overlay-resultado oculto';
+                procesandoQr = false;
+            }, 5000);
         }
 
-        const membresia = await validarMembresiaSocio(socio.id);
-        const nombreCompleto = `${socio.nombre} ${socio.apellido}`;
+        try {
+            const { data: socio, error } = await supabaseClient
+                .from('socios')
+                .select('id, nombre, apellido')
+                .eq('qr_token', qrToken)
+                .eq('gimnasio_id', GIMNASIO_ID)
+                .single();
 
-        if (!membresia) {
+            if (error || !socio) {
+                mostrarOverlay('error', 'QR No Válido', 'Este código no pertenece a ningún socio');
+                return;
+            }
+
+            const membresia = await validarMembresiaSocio(socio.id);
+            const nombreCompleto = `${socio.nombre} ${socio.apellido}`;
+
+            if (!membresia) {
+                await supabaseClient.from('asistencias').insert({
+                    gimnasio_id: GIMNASIO_ID,
+                    socio_id: socio.id,
+                    estado: 'denegado',
+                    tipo_registro: 'qr'
+                });
+                mostrarOverlay('error', nombreCompleto, 'Membresía vencida o inactiva');
+                return;
+            }
+
             await supabaseClient.from('asistencias').insert({
                 gimnasio_id: GIMNASIO_ID,
                 socio_id: socio.id,
-                estado: 'denegado',
+                estado: 'ingreso',
                 tipo_registro: 'qr'
             });
-            mostrarOverlay('error', nombreCompleto, 'Membresía vencida o inactiva');
-            return;
+
+            const filtroVal = document.getElementById('filtro-fecha-asistencia').value;
+            cargarAsistencias(filtroVal);
+
+            mostrarOverlay('exito', nombreCompleto, '¡Bienvenido/a!');
+
+        } catch (err) {
+            console.error('Error procesando QR:', err);
+            procesandoQr = false;
         }
-
-        await supabaseClient.from('asistencias').insert({
-            gimnasio_id: GIMNASIO_ID,
-            socio_id: socio.id,
-            estado: 'ingreso',
-            tipo_registro: 'qr'
-        });
-
-        const filtroVal = document.getElementById('filtro-fecha-asistencia').value;
-        cargarAsistencias(filtroVal);
-
-        mostrarOverlay('exito', nombreCompleto, '¡Bienvenido/a!');
-
-    } catch (err) {
-        console.error('Error procesando QR:', err);
-        procesandoQr = false;
     }
-}
 
     if (btnIniciarScanner) {
         btnIniciarScanner.addEventListener('click', async () => {
@@ -551,7 +551,7 @@ async function procesarQR(qrToken) {
                     (decodedText) => {
                         procesarQR(decodedText);
                     },
-                    () => {} // errores silenciosos mientras busca
+                    () => { } // errores silenciosos mientras busca
                 );
 
             } catch (err) {
@@ -563,7 +563,7 @@ async function procesarQR(qrToken) {
             }
         });
     }
-    
+
     async function detenerScanner() {
         if (!escainerActivo) return;
 
@@ -589,7 +589,6 @@ async function procesarQR(qrToken) {
                 overlay.classList.add('oculta');
             }
             document.body.style.overflow = '';
-            document.body.classList.remove('scanner-activo');
         } catch (err) {
             console.error('Error deteniendo escáner:', err);
         }
@@ -624,7 +623,7 @@ async function procesarQR(qrToken) {
                 (decodedText) => {
                     procesarQR(decodedText);
                 },
-                () => {}
+                () => { }
             );
 
             // Actualizar estado de botones
@@ -663,7 +662,7 @@ async function procesarQR(qrToken) {
 // --- LOGICA DEL FOOTER DEL SIDEBAR ---
 async function cargarDatosUsuario() {
     const gymId = localStorage.getItem("gimnasio_id");
-    
+
     if (!gymId) {
         window.location.href = "login.html";
         return;
@@ -683,7 +682,7 @@ async function cargarDatosUsuario() {
 
     if (data) {
         const nombreGym = data.nombre; // Aquí vendrá "enzou" o el que pongas en la BD
-        
+
         // 2. Actualizamos el texto en el sidebar
         const labelNombre = document.getElementById("sidebar-user-name");
         if (labelNombre) labelNombre.textContent = nombreGym;
@@ -693,7 +692,7 @@ async function cargarDatosUsuario() {
         if (inicialesElemento) {
             const partes = nombreGym.trim().split(" ");
             let iniciales = "";
-            
+
             if (partes.length > 1) {
                 // Si es "Enzo Gym" -> "EG"
                 iniciales = partes[0].charAt(0) + partes[1].charAt(0);
