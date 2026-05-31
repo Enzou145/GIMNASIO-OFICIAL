@@ -1027,7 +1027,198 @@ min-width: 180px;}
 
 
 
-/* ================= QR SCANNER FULLSCREEN ================ */
+/* ================= QR SCANNER FULLSCREEN MEJORADO ================ */
+
+/* Cuando qr-reader está activo (no tiene clase oculta) */
+.qr-reader:not(.oculta) {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9998 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    background: #000 !important;
+    flex: none !important;
+}
+
+.qr-reader:not(.oculta) video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* Botón detener en fullscreen */
+#btn-detener-scanner:not(.oculta) {
+    position: fixed !important;
+    top: 16px !important;
+    left: 16px !important;
+    z-index: 10002 !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    width: auto !important;
+    flex: none !important;
+    gap: 6px !important;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+}
+
+#btn-detener-scanner:not(.oculta):hover {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+#btn-detener-scanner:not(.oculta):active {
+    transform: scale(0.98);
+}
+
+/* Ocultar UI interna de html5-qrcode */
+#qr-reader__dashboard,
+#qr-reader__header_message,
+#qr-reader__scan_region button,
+#qr-reader img {
+    display: none !important;
+}
+
+#qr-reader video {
+    width: 100% !important;
+    border-radius: 0 !important;
+}
+
+/* ================= OVERLAY FULLSCREEN DEL SCANNER ================ */
+.qr-scanner-fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background: transparent;
+    display: none;
+    pointer-events: none;
+}
+
+.qr-scanner-fullscreen-overlay:not(.oculta) {
+    display: block;
+}
+
+/* Permitir clicks en elementos interactivos */
+.qr-scanner-fullscreen-overlay .badge-escaneando {
+    pointer-events: auto;
+}
+
+/* ================= ESQUINAS DEL MARCO (4) ================ */
+.qr-frame-corner {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border: 3px solid #e50914;
+}
+
+.qr-frame-corner.top-left {
+    top: 50%;
+    left: 50%;
+    transform: translate(calc(-50% - 120px), calc(-50% - 120px));
+    border-right: none;
+    border-bottom: none;
+}
+
+.qr-frame-corner.top-right {
+    top: 50%;
+    right: 50%;
+    transform: translate(calc(50% + 120px), calc(-50% - 120px));
+    border-left: none;
+    border-bottom: none;
+}
+
+.qr-frame-corner.bottom-left {
+    bottom: 50%;
+    left: 50%;
+    transform: translate(calc(-50% - 120px), calc(50% + 120px));
+    border-right: none;
+    border-top: none;
+}
+
+.qr-frame-corner.bottom-right {
+    bottom: 50%;
+    right: 50%;
+    transform: translate(calc(50% + 120px), calc(50% + 120px));
+    border-left: none;
+    border-top: none;
+}
+
+/* ================= LÍNEA ANIMADA ================ */
+@keyframes scanningLine {
+    0% {
+        top: 35%;
+    }
+    50% {
+        top: 50%;
+    }
+    100% {
+        top: 65%;
+    }
+}
+
+.qr-scanning-line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 260px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #e50914, transparent);
+    transform: translateX(-50%);
+    z-index: 10001;
+    animation: scanningLine 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+}
+
+/* ================= BADGE ESCANEANDO ================ */
+.badge-escaneando {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 10002;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(8px);
+}
+
+@keyframes dotBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.badge-escaneando .dot-rojo {
+    width: 8px;
+    height: 8px;
+    background-color: #e50914;
+    border-radius: 50%;
+    display: inline-block;
+    animation: dotBlink 1.5s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(229, 9, 20, 0.8);
+}
+
+/* ================= QR SCANNER FULLSCREEN - OLD (mantener por compat.) ================ */
 .qr-scanner-fullscreen {
     position: fixed;
     top: 0;
@@ -1042,20 +1233,6 @@ min-width: 180px;}
 
 .qr-scanner-fullscreen.oculto {
     display: none;
-}
-
-.qr-scanner-fullscreen #qr-reader {
-    flex: 1;
-    width: 100%;
-    min-height: unset;
-    border-radius: 0;
-    border: none;
-}
-
-.qr-scanner-fullscreen #qr-reader video {
-    object-fit: cover;
-    width: 100% !important;
-    height: 100% !important;
 }
 
 .qr-scanner-top-bar {
@@ -1109,11 +1286,4 @@ min-width: 180px;}
     font-size: 14px;
     font-weight: 500;
     text-align: center;
-}
-
-/* Ocultar UI interna de html5-qrcode */
-#qr-reader__dashboard,
-#qr-reader__header_message,
-#qr-reader__scan_region button {
-    display: none !important;
 }
