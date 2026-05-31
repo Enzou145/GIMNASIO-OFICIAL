@@ -1045,44 +1045,16 @@ min-width: 180px;}
 }
 
 .qr-reader:not(.oculta) video {
-    width: 100% !important;
-    height: 100% !important;
+    width: 100vw !important;
+    height: 100vh !important;
     object-fit: cover !important;
-}
-
-/* Botón detener en fullscreen */
-#btn-detener-scanner:not(.oculta) {
-    position: fixed !important;
-    top: 16px !important;
-    left: 16px !important;
-    z-index: 10002 !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
-    color: white !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 8px !important;
-    padding: 10px 16px !important;
-    font-size: 14px !important;
-    font-weight: 700 !important;
-    width: auto !important;
-    flex: none !important;
-    gap: 6px !important;
-    backdrop-filter: blur(8px);
-    transition: all 0.2s ease;
-}
-
-#btn-detener-scanner:not(.oculta):hover {
-    background-color: rgba(0, 0, 0, 0.7) !important;
-    border-color: rgba(255, 255, 255, 0.4) !important;
-}
-
-#btn-detener-scanner:not(.oculta):active {
-    transform: scale(0.98);
 }
 
 /* Ocultar UI interna de html5-qrcode */
 #qr-reader__dashboard,
 #qr-reader__header_message,
 #qr-reader__scan_region button,
+#qr-reader__scan_region canvas,
 #qr-reader img {
     display: none !important;
 }
@@ -1110,22 +1082,58 @@ min-width: 180px;}
 }
 
 /* Permitir clicks en elementos interactivos */
-.qr-scanner-fullscreen-overlay .badge-escaneando {
+.qr-scanner-fullscreen-overlay .qr-scanner-top-controls,
+.qr-scanner-fullscreen-overlay .camera-selector,
+.qr-scanner-fullscreen-overlay .badge-escaneando,
+.qr-scanner-fullscreen-overlay .btn-camera-toggle {
     pointer-events: auto;
 }
 
-/* ================= ESQUINAS DEL MARCO (4) ================ */
+/* ================= CONTROLES SUPERIOR (Primera fila) ================ */
+.qr-scanner-top-controls {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    z-index: 10002;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-scanner-top-left {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+}
+
+.btn-scanner-top-left:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.btn-scanner-top-left:active {
+    transform: scale(0.98);
+}
+
+/* ================= ESQUINAS DEL MARCO ================ */
 .qr-frame-corner {
     position: absolute;
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     border: 3px solid #e50914;
 }
 
 .qr-frame-corner.top-left {
     top: 50%;
     left: 50%;
-    transform: translate(calc(-50% - 160px), calc(-50% - 160px));
+    transform: translate(calc(-50% - 37.5vw), calc(-50% - 37.5vw));
     border-right: none;
     border-bottom: none;
 }
@@ -1133,7 +1141,7 @@ min-width: 180px;}
 .qr-frame-corner.top-right {
     top: 50%;
     right: 50%;
-    transform: translate(calc(50% + 160px), calc(-50% - 160px));
+    transform: translate(calc(50% + 37.5vw), calc(-50% - 37.5vw));
     border-left: none;
     border-bottom: none;
 }
@@ -1141,7 +1149,7 @@ min-width: 180px;}
 .qr-frame-corner.bottom-left {
     bottom: 50%;
     left: 50%;
-    transform: translate(calc(-50% - 160px), calc(50% + 160px));
+    transform: translate(calc(-50% - 37.5vw), calc(50% + 37.5vw));
     border-right: none;
     border-top: none;
 }
@@ -1149,7 +1157,7 @@ min-width: 180px;}
 .qr-frame-corner.bottom-right {
     bottom: 50%;
     right: 50%;
-    transform: translate(calc(50% + 160px), calc(50% + 160px));
+    transform: translate(calc(50% + 37.5vw), calc(50% + 37.5vw));
     border-left: none;
     border-top: none;
 }
@@ -1171,7 +1179,7 @@ min-width: 180px;}
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 260px;
+    width: 280px;
     height: 3px;
     background: linear-gradient(90deg, transparent, #e50914, transparent);
     transform: translateX(-50%);
@@ -1182,13 +1190,9 @@ min-width: 180px;}
 
 /* ================= BADGE ESCANEANDO ================ */
 .badge-escaneando {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 10002;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     color: white;
-    padding: 8px 14px;
+    padding: 10px 20px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 800;
@@ -1197,6 +1201,11 @@ min-width: 180px;}
     align-items: center;
     gap: 8px;
     backdrop-filter: blur(8px);
+}
+
+.qr-scanner-top-controls .badge-escaneando {
+    position: static;
+    background-color: rgba(0, 0, 0, 0.6);
 }
 
 @keyframes dotBlink {
@@ -1221,21 +1230,21 @@ min-width: 180px;}
 /* ================= SELECTOR DE CÁMARA ================ */
 .camera-selector {
     position: absolute;
-    top: 16px;
+    top: 70px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10002;
     display: flex;
-    gap: 10px;
+    gap: 12px;
 }
 
 .btn-camera-toggle {
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 12px;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     backdrop-filter: blur(8px);
@@ -1244,7 +1253,7 @@ min-width: 180px;}
 }
 
 .btn-camera-toggle:hover {
-    border-color: rgba(255, 255, 255, 0.4);
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .btn-camera-toggle:active {
@@ -1253,7 +1262,6 @@ min-width: 180px;}
 
 .btn-camera-toggle.activa {
     background-color: #e50914;
-    border-color: #e50914;
     box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
 }
 

@@ -416,9 +416,6 @@ function reproducirSonido(tipo) {
     const qrResultadoNombre = document.getElementById('qr-resultado-nombre');
     const qrResultadoEstado = document.getElementById('qr-resultado-estado');
 
-    const btnCameraFrontal = document.getElementById('btn-camera-frontal');
-    const btnCameraTrasera = document.getElementById('btn-camera-trasera');
-
     async function validarMembresiaSocio(socioId) {
         try {
             const { data: membresia, error } = await supabaseClient
@@ -544,7 +541,7 @@ async function procesarQR(qrToken) {
                     { facingMode: cameraFacingMode },
                     {
                         fps: 15,
-                        qrbox: { width: 320, height: 320 },
+                        qrbox: { width: 280, height: 280 },
                         aspectRatio: 1.0,
                         disableFlip: false,
                         // ✅ Esta es la clave: oculta el botón nativo de la librería
@@ -609,7 +606,7 @@ async function procesarQR(qrToken) {
                 { facingMode: cameraFacingMode },
                 {
                     fps: 15,
-                    qrbox: { width: 320, height: 320 },
+                    qrbox: { width: 280, height: 280 },
                     aspectRatio: 1.0,
                     disableFlip: false,
                     showTorchButtonIfSupported: false,
@@ -624,22 +621,21 @@ async function procesarQR(qrToken) {
             );
 
             // Actualizar estado de botones
-            if (facingMode === 'user') {
-                btnCameraFrontal.classList.add('activa');
-                btnCameraTrasera.classList.remove('activa');
-            } else {
-                btnCameraFrontal.classList.remove('activa');
-                btnCameraTrasera.classList.add('activa');
+            const btnCameraFrontal = document.getElementById('btn-camera-frontal');
+            const btnCameraTrasera = document.getElementById('btn-camera-trasera');
+
+            if (btnCameraFrontal && btnCameraTrasera) {
+                if (facingMode === 'user') {
+                    btnCameraFrontal.classList.add('activa');
+                    btnCameraTrasera.classList.remove('activa');
+                } else {
+                    btnCameraFrontal.classList.remove('activa');
+                    btnCameraTrasera.classList.add('activa');
+                }
             }
         } catch (err) {
             console.error('Error cambiando cámara:', err);
         }
-    }
-
-    if (btnCameraFrontal) {
-        btnCameraFrontal.addEventListener('click', () => {
-            cambiarCamara('user');
-        });
     }
 
     if (btnCameraTrasera) {
@@ -647,6 +643,16 @@ async function procesarQR(qrToken) {
             cambiarCamara('environment');
         });
     }
+
+    // --- DELEGACIÓN DE EVENTOS PARA BOTONES DE CÁMARA ---
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#btn-camera-frontal')) {
+            cambiarCamara('user');
+        }
+        if (e.target.closest('#btn-camera-trasera')) {
+            cambiarCamara('environment');
+        }
+    });
 });
 
 

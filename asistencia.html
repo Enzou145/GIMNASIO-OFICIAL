@@ -182,7 +182,17 @@
                             <!-- Línea animada -->
                             <div class="qr-scanning-line"></div>
 
-                            <!-- Selector de cámara (centro arriba) -->
+                            <!-- Primera fila: Volver | Espacio | Escaneando -->
+                            <div class="qr-scanner-top-controls">
+                                <button type="button" id="btn-detener-scanner" class="btn-scanner-top-left">
+                                    ← Volver
+                                </button>
+                                <div class="badge-escaneando">
+                                    <span class="dot-rojo"></span> ESCANEANDO
+                                </div>
+                            </div>
+
+                            <!-- Segunda fila: Selector de cámara (centrado) -->
                             <div class="camera-selector">
                                 <button type="button" id="btn-camera-frontal" class="btn-camera-toggle">
                                     📷 Frontal
@@ -190,11 +200,6 @@
                                 <button type="button" id="btn-camera-trasera" class="btn-camera-toggle activa">
                                     📷 Trasera
                                 </button>
-                            </div>
-
-                            <!-- Badge escaneando (arriba derecha) -->
-                            <div class="badge-escaneando">
-                                <span class="dot-rojo"></span> ESCANEANDO
                             </div>
                         </div>
 
