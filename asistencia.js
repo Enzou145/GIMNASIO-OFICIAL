@@ -409,7 +409,6 @@ function reproducirSonido(tipo) {
     let cameraFacingMode = 'environment'; // Frontal: 'user', Trasera: 'environment'
 
     const btnIniciarScanner = document.getElementById('btn-iniciar-scanner');
-    const btnDetenerScanner = document.getElementById('btn-detener-scanner');
     const qrReader = document.getElementById('qr-reader');
     const qrResultado = document.getElementById('qr-resultado');
     const qrResultadoInicial = document.getElementById('qr-resultado-inicial');
@@ -529,7 +528,6 @@ async function procesarQR(qrToken) {
 
             escainerActivo = true;
             btnIniciarScanner.classList.add('oculta');
-            btnDetenerScanner.classList.remove('oculta');
             qrReader.classList.remove('oculta');
             qrResultado.classList.add('oculta');
 
@@ -561,31 +559,39 @@ async function procesarQR(qrToken) {
                 alert('No se pudo acceder a la cámara');
                 escainerActivo = false;
                 btnIniciarScanner.classList.remove('oculta');
-                btnDetenerScanner.classList.add('oculta');
                 qrReader.classList.add('oculta');
             }
         });
     }
     
-    if (btnDetenerScanner) {
-        btnDetenerScanner.addEventListener('click', async () => {
-            if (!escainerActivo) return;
+    async function detenerScanner() {
+        if (!escainerActivo) return;
 
-            try {
-                if (html5QrcodeScanner) {
-                    await html5QrcodeScanner.stop();
-                    html5QrcodeScanner = null;
-                }
-                escainerActivo = false;
-                procesandoQr = false;
-                btnIniciarScanner.classList.remove('oculta');
-                btnDetenerScanner.classList.add('oculta');
-                qrReader.classList.add('oculta');
-                qrResultado.classList.add('oculta');
-            } catch (err) {
-                console.error('Error deteniendo escáner:', err);
+        try {
+            if (html5QrcodeScanner) {
+                await html5QrcodeScanner.stop();
+                html5QrcodeScanner = null;
             }
-        });
+            escainerActivo = false;
+            procesandoQr = false;
+            if (btnIniciarScanner) {
+                btnIniciarScanner.classList.remove('oculta');
+            }
+            if (qrReader) {
+                qrReader.classList.add('oculta');
+            }
+            if (qrResultado) {
+                qrResultado.classList.add('oculta');
+            }
+            // Asegurar que el overlay se oculte y se restaure el overflow del body
+            const overlay = document.getElementById('qr-scanner-fullscreen-overlay');
+            if (overlay) {
+                overlay.classList.add('oculta');
+            }
+            document.body.style.overflow = '';
+        } catch (err) {
+            console.error('Error deteniendo escáner:', err);
+        }
     }
 
     // --- CAMBIAR CÁMARA ---
@@ -638,14 +644,11 @@ async function procesarQR(qrToken) {
         }
     }
 
-    if (btnCameraTrasera) {
-        btnCameraTrasera.addEventListener('click', () => {
-            cambiarCamara('environment');
-        });
-    }
-
-    // --- DELEGACIÓN DE EVENTOS PARA BOTONES DE CÁMARA ---
-    document.addEventListener('click', (e) => {
+    // --- DELEGACIÓN DE EVENTOS PARA BOTONES DE CÁMARA Y VOLVER ---
+    document.addEventListener('click', async (e) => {
+        if (e.target.closest('#btn-detener-scanner')) {
+            await detenerScanner();
+        }
         if (e.target.closest('#btn-camera-frontal')) {
             cambiarCamara('user');
         }
