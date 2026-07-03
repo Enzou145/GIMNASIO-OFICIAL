@@ -1,0 +1,1593 @@
+/* ================= PLANES HEADER ================ */
+.planes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    margin-top: 20px;
+}
+
+.planes-header .titulos p {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--texto-secundario);
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.planes-header .titulos h1 {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--texto-principal);
+    letter-spacing: 1px;
+}
+
+.planes-header .titulos h2 {
+    font-size: 11px;
+    font-weight: 900;
+    color: var(--color-rojo);
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+}
+
+.fecha-hoy {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.header-acciones-asistencia {
+    display: flex;
+    background-color: var(--color-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 12px;
+    padding: 6px;
+    gap: 5px;
+}
+
+.header-acciones-asistencia button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.btn-modo-activo {
+    background-color: var(--color-rojo) !important;
+    color: white !important;
+    box-shadow: var(--sombra-glow-rojo);
+}
+
+.btn-modo-inactivo {
+    color: var(--texto-secundario) !important;
+}
+
+.btn-modo-inactivo:hover {
+    color: var(--texto-principal) !important;
+}
+
+/* ================= ASISTENCIA HEADER ================ */
+.asistencia-header {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 30px;
+    width: 100%;
+    align-items: center;
+}
+
+.card-escaner {
+    background-color: var(--color-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: var(--sombra-tarjeta);
+    position: relative;
+    overflow: visible;
+    width: 100%;
+}
+
+.card-escaner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--color-rojo);
+    box-shadow: var(--sombra-glow-rojo);
+    border-radius: 16px 0 0 16px;
+}
+
+.card-escaner h2 {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--texto-principal);
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.card-escaner p {
+    font-size: 13px;
+    color: var(--texto-secundario);
+    margin-bottom: 25px;
+}
+
+.form-escaner {
+    display: flex;
+    gap: 15px;
+}
+
+.input-escaner-wrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-escaner-wrapper svg {
+    position: absolute;
+    left: 15px;
+    color: var(--texto-secundario);
+}
+
+.input-escaner-wrapper input {
+    width: 100%;
+    background-color: var(--color-fondo-suave);
+    border: 1px solid var(--borde-input);
+    border-radius: 12px;
+    padding: 18px 20px 18px 50px;
+    color: var(--texto-principal);
+    font-size: 16px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-escaner-wrapper input:focus {
+    border-color: var(--color-rojo);
+    box-shadow: 0 0 15px rgba(229, 9, 20, 0.2);
+}
+
+#btn-registrar {
+    background-color: var(--color-rojo);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0 30px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--sombra-glow-rojo);
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+#btn-registrar:hover {
+    background-color: var(--color-rojo-brillo);
+}
+
+#btn-registrar:active {
+    transform: translateY(2px);
+}
+
+.stats-asistencia {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.stats-asistencia .tarjeta {
+    flex: 1;
+    margin: 0;
+}
+
+.tarjeta-asistencia {
+    width: 30%;
+    min-width: 180px;
+    margin-left: auto;
+}
+
+
+/* ================= TARJETA ASISTENCIA ================ */
+.tarjeta-asistencia {
+    background: var(--gradiente-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: var(--radio-borde);
+    box-shadow: var(--sombra-tarjeta);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 25px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    height: auto;
+    min-height: 110px;
+}
+
+.tarjeta-asistencia:hover {
+    transform: translateY(-0.5px);
+    box-shadow: var(--sombra-glow-rojo);
+    border-color: var(--color-rojo-hover);
+}
+
+.tarjeta-asistencia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.icono-izquierdaaa {
+    width: 36px;
+    height: 36px;
+    background-color: var(--color-rojo);
+    color: #ffffff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.icono-derechaa {
+    color: var(--texto-secundario);
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.tarjeta-labell {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--texto-secundario);
+    font-weight: 700;
+}
+
+.tarjeta-valorr {
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--texto-principal);
+}
+
+
+/* ================= ALERTA DINÁMICA ================ */
+.alerta-ingreso {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 30px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    transform: translateY(0);
+    opacity: 1;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.alerta-ingreso.oculta {
+    transform: translateY(-20px);
+    opacity: 0;
+    pointer-events: none;
+    height: 0;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+.alerta-ingreso.exito {
+    background-color: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.alerta-ingreso.exito .alerta-icono {
+    background-color: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.alerta-ingreso.error {
+    background-color: rgba(239, 31, 42, 0.1);
+    border: 1px solid rgba(239, 31, 42, 0.2);
+}
+
+.alerta-ingreso.error .alerta-icono {
+    background-color: rgba(239, 31, 42, 0.2);
+    color: #ef1f2a;
+}
+
+.alerta-icono {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.alerta-icono svg {
+    width: 24px;
+    height: 24px;
+}
+
+.alerta-info h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--texto-principal);
+    margin-bottom: 4px;
+}
+
+.alerta-info p {
+    font-size: 14px;
+    color: var(--texto-secundario);
+    font-weight: 500;
+}
+
+.membresias-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.filtro-fecha-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--color-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    padding: 8px 15px;
+    border-radius: 8px;
+    color: var(--texto-secundario);
+}
+
+.filtro-fecha-container svg {
+    color: var(--color-rojo);
+}
+
+#filtro-fecha-asistencia {
+    background: transparent;
+    border: none;
+    color: var(--texto-principal);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+}
+
+#filtro-fecha-asistencia::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+#filtro-fecha-asistencia::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+/* Ajustes tabla asistencias */
+#tabla-asistencia .titulo-tabla-clientes,
+#tabla-asistencia .cliente {
+    grid-template-columns: 2fr 1fr 1fr;
+}
+
+
+/* ================= AUTOCOMPLETE ================ */
+.autocomplete-items {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    background-color: var(--color-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 12px;
+    margin-top: 5px;
+    max-height: 250px;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: none;
+}
+
+.autocomplete-items.activo {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--borde-tarjeta);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background-color: var(--color-fondo-suave);
+}
+
+.autocomplete-nombre {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--texto-principal);
+}
+
+.autocomplete-dni {
+    font-size: 12px;
+    color: var(--texto-secundario);
+}
+
+/* ================= PREVIEW SOCIO ================ */
+.preview-socio {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding: 15px 20px;
+    background-color: var(--color-fondo-suave);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.preview-socio.oculta {
+    display: none;
+}
+
+.preview-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--color-rojo);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.preview-info {
+    flex: 1;
+}
+
+.preview-info h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--texto-principal);
+    margin-bottom: 2px;
+}
+
+.preview-info p {
+    font-size: 12px;
+    color: var(--texto-secundario);
+}
+
+.preview-estado .badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.preview-estado.activo .badge {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.preview-estado.por-vencer .badge {
+    background-color: rgba(234, 179, 8, 0.1);
+    color: #eab308;
+    border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+.preview-estado.vencido .badge {
+    background-color: rgba(239, 31, 42, 0.1);
+    color: #ef1f2a;
+    border: 1px solid rgba(239, 31, 42, 0.2);
+}
+
+
+
+#contenedor-filas-asistencia {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ================= CARD QR SCANNER ================ */
+.card-qr-scanner {
+    background-color: var(--color-tarjeta);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: var(--sombra-tarjeta);
+    position: relative;
+    overflow: visible;
+    width: 100%;
+}
+
+.card-qr-scanner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: var(--color-rojo);
+    box-shadow: var(--sombra-glow-rojo);
+    border-radius: 16px 0 0 16px;
+}
+
+.card-qr-scanner h2 {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--texto-principal);
+    margin-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+.card-qr-scanner p {
+    font-size: 13px;
+    color: var(--texto-secundario);
+    margin-bottom: 25px;
+}
+
+.qr-scanner-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.btn-scanner-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--color-rojo);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: var(--sombra-glow-rojo);
+    transition: background-color 0.2s, transform 0.1s;
+    flex: 1;
+}
+
+.btn-scanner-action:hover {
+    background-color: var(--color-rojo-brillo);
+}
+
+.btn-scanner-action:active {
+    transform: translateY(2px);
+}
+
+.btn-scanner-action.detener {
+    background-color: var(--texto-secundario);
+    box-shadow: none;
+}
+
+.btn-scanner-action.detener:hover {
+    background-color: var(--color-rojo);
+}
+
+.btn-scanner-action.oculta {
+    display: none;
+}
+
+.qr-reader {
+    width: 100%;
+    border: 2px solid var(--borde-tarjeta);
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: var(--color-fondo-suave);
+    margin-bottom: 20px;
+}
+
+.qr-reader.oculta {
+    display: none;
+}
+
+#qr-reader {
+    width: 100%;
+    min-height: 300px;
+}
+
+#qr-reader video {
+    width: 100% !important;
+    border-radius: 8px;
+    object-fit: cover !important;
+}
+
+/* Mejorar área de escaneo - enfoque claro */
+#qr-reader canvas,
+#qr-reader__scan_region canvas {
+    border-radius: 8px !important;
+    object-fit: cover !important;
+}
+
+.qr-resultado {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    background-color: var(--color-fondo-suave);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.qr-resultado.oculta {
+    display: none;
+}
+
+.qr-resultado-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: var(--color-rojo);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.qr-resultado-info {
+    flex: 1;
+}
+
+.qr-resultado-info h3 {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--texto-principal);
+    margin-bottom: 2px;
+}
+
+.qr-resultado-info p {
+    font-size: 12px;
+    color: var(--texto-secundario);
+}
+
+/* ============================================
+   RESPONSIVE � DESKTOP (ocultar hamburguesa)
+   ============================================ */
+* {
+    box-sizing: border-box;
+}
+
+.menu-toggle {
+    display: none;
+}
+
+/* ============================================
+   RESPONSIVE � TABLET (768px - 1100px)
+   ============================================ */
+@media (max-width: 1100px) and (min-width: 769px) {
+
+    .contenido-principal {
+        padding: 0 30px;
+    }
+
+    .planes-header .titulos h1 {
+        font-size: 20px;
+    }
+
+    .asistencia-header {
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .card-escaner {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .card-qr-scanner {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .tarjeta-asistencia {
+        width: 35%;
+        min-width: 160px;
+    }
+
+    .membresias-header {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    #tabla-asistencia .titulo-tabla-clientes,
+    #tabla-asistencia .cliente {
+        grid-template-columns: 2fr 1fr 1fr;
+    }
+}
+
+/* ============================================
+   RESPONSIVE � MOBILE (max 768px)
+   ============================================ */
+@media (max-width: 768px) {
+
+    /* APP LAYOUT */
+    .app {
+        flex-direction: column;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 75%;
+        max-width: 280px;
+        height: 100vh;
+        z-index: 999;
+        border: none;
+        border-right: 1px solid var(--borde-sidebar);
+        overflow-y: auto;
+    }
+
+    .sidebar.abierto {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.75);
+        z-index: 998;
+    }
+
+    .sidebar-overlay.abierto {
+        display: block;
+    }
+
+    .sidebar-footer {
+        display: flex;
+    }
+
+    .menu-toggle {
+        display: flex;
+        background: none;
+        border: none;
+        color: var(--texto-principal);
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 8px;
+    }
+
+    .menu-toggle:hover {
+        background-color: var(--color-tarjeta-elevada);
+    }
+
+    /* MAIN WRAPPER */
+    .main-wrapper {
+        width: 100%;
+    }
+
+    /* TOP BAR */
+    .top-bar {
+        padding: 0 16px;
+        font-size: 16px;
+    }
+
+    #buscador {
+        display: none;
+    }
+
+    /* CONTENIDO PRINCIPAL */
+    .contenido-principal {
+        padding: 0 14px;
+        overflow-x: hidden;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* PLANES HEADER (usado en asistencia) */
+    .planes-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 16px;
+        margin-top: 16px;
+    }
+
+    .planes-header .titulos h1 {
+        font-size: 20px;
+    }
+
+    /* ASISTENCIA HEADER � apilar escaner y tarjeta */
+    .asistencia-header {
+        flex-direction: column;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .tarjeta-asistencia {
+        width: 100%;
+        min-width: unset;
+        min-height: auto;
+        padding: 16px 20px;
+    }
+
+    /* FORM ESCANER � bot�n debajo del input */
+    .form-escaner {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #btn-registrar {
+        width: 100%;
+        padding: 14px 20px;
+        border-radius: 10px;
+    }
+
+    .card-escaner {
+        padding: 20px 16px;
+    }
+
+    .card-escaner h2 {
+        font-size: 17px;
+    }
+
+    .card-qr-scanner {
+        padding: 20px 16px;
+    }
+
+    .card-qr-scanner h2 {
+        font-size: 17px;
+    }
+
+    .qr-scanner-controls {
+        flex-direction: column;
+    }
+
+    .btn-scanner-action {
+        width: 100%;
+    }
+
+    #qr-reader {
+        min-height: 250px;
+    }
+
+    /* HISTORIAL � header con filtro fecha */
+    .membresias-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    #titulo-tabla-asistencia {
+        font-size: 14px;
+    }
+
+    .filtro-fecha-container {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    /* TABLA ASISTENCIA � ocultar columna hora en mobile muy peque�o */
+    #tabla-asistencia .titulo-tabla-clientes {
+        display: none;
+    }
+
+    #tabla-asistencia .cliente {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 12px 14px;
+        width: 100%;
+    }
+
+    #tabla-asistencia .cliente .socio-info {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #tabla-asistencia .cliente .vencimiento-info {
+        padding-left: 48px;
+    }
+
+    #tabla-asistencia .cliente .estado {
+        margin-left: 48px;
+    }
+
+    /* ALERTA DIN�MICA */
+    .alerta-ingreso {
+        padding: 14px 16px;
+        gap: 12px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+    }
+
+    .alerta-info h3 {
+        font-size: 15px;
+    }
+
+    .alerta-info p {
+        font-size: 12px;
+    }
+}
+
+/* ============================================
+   RESPONSIVE � MOBILE PEQUE�O (max 480px)
+   ============================================ */
+@media (max-width: 480px) {
+
+    .planes-header .titulos h1 {
+        font-size: 17px;
+    }
+
+    .card-escaner h2 {
+        font-size: 15px;
+    }
+
+    .tarjeta-valorr {
+        font-size: 24px;
+    }
+}
+
+
+
+/* Ocultar botones internos de html5-qrcode */
+#qr-reader__scan_region button,
+#qr-reader__dashboard,
+#qr-reader__dashboard_section,
+#qr-reader__header_message {
+    display: none !important;
+}
+
+
+/* ================= OVERLAY FULLSCREEN QR ================ */
+.qr-overlay-resultado {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    transition: opacity 0.3s ease;
+}
+
+.qr-overlay-resultado.oculto {
+    display: none;
+}
+
+.qr-overlay-resultado.exito {
+    background: linear-gradient(135deg, #064e1e 0%, #0a6629 50%, #0d7a30 100%);
+}
+
+.qr-overlay-resultado.error {
+    background: linear-gradient(135deg, #4e0606 0%, #7a0d0d 50%, #8b1010 100%);
+}
+
+.qr-overlay-contenido {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 40px;
+    text-align: center;
+}
+
+.qr-overlay-icono {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.qr-overlay-resultado.exito .qr-overlay-icono {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.qr-overlay-resultado.error .qr-overlay-icono {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.qr-overlay-icono svg {
+    width: 64px;
+    height: 64px;
+    stroke: white;
+}
+
+.qr-overlay-contenido h1 {
+    font-size: 36px;
+    font-weight: 900;
+    color: white;
+    letter-spacing: 3px;
+    margin: 0;
+}
+
+.qr-overlay-contenido h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+}
+
+.qr-overlay-contenido p {
+    font-size: 20px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.qr-overlay-barra {
+    width: 280px;
+    height: 4px;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin-top: 30px;
+    overflow: hidden;
+}
+
+.qr-overlay-barra-progreso {
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    border-radius: 2px;
+    transform-origin: left;
+    animation: none;
+}
+
+@keyframes barraTemporizador {
+    from {
+        transform: scaleX(1);
+    }
+
+    to {
+        transform: scaleX(0);
+    }
+}
+
+
+
+
+
+
+
+
+
+/* ================= QR SCANNER FULLSCREEN MEJORADO ================ */
+
+/* Cuando qr-reader está activo (no tiene clase oculta) */
+.qr-reader:not(.oculta) {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9998 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    background: #000 !important;
+    flex: none !important;
+}
+
+.qr-reader:not(.oculta) video {
+    width: 100vw !important;
+    height: 100vh !important;
+    object-fit: cover !important;
+}
+
+/* Ocultar UI interna de html5-qrcode */
+#qr-reader__dashboard,
+#qr-reader__header_message,
+#qr-reader__scan_region button,
+#qr-reader__scan_region canvas,
+#qr-reader img {
+    display: none !important;
+}
+
+#qr-reader video {
+    width: 100% !important;
+    border-radius: 0 !important;
+}
+
+/* ================= OVERLAY FULLSCREEN DEL SCANNER ================ */
+.qr-scanner-fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background: transparent;
+    display: none;
+    pointer-events: none;
+}
+
+.qr-scanner-fullscreen-overlay:not(.oculta) {
+    display: block;
+}
+
+/* Permitir clicks en elementos interactivos */
+.qr-scanner-fullscreen-overlay .qr-scanner-top-controls,
+.qr-scanner-fullscreen-overlay .camera-selector,
+.qr-scanner-fullscreen-overlay .badge-escaneando,
+.qr-scanner-fullscreen-overlay .btn-camera-toggle {
+    pointer-events: auto;
+}
+
+/* ================= CONTROLES SUPERIOR (Primera fila) ================ */
+.qr-scanner-top-controls {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    z-index: 10002;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-scanner-top-left {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+}
+
+.btn-scanner-top-left:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.btn-scanner-top-left:active {
+    transform: scale(0.98);
+}
+
+/* ================= ESQUINAS DEL MARCO ================ */
+.qr-frame-corner {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 3px solid #e50914;
+}
+
+.qr-frame-corner.top-left {
+    top: 50%;
+    left: 50%;
+    transform: translate(calc(-50% - 37.5vw), calc(-50% - 37.5vw));
+    border-right: none;
+    border-bottom: none;
+}
+
+.qr-frame-corner.top-right {
+    top: 50%;
+    right: 50%;
+    transform: translate(calc(50% + 37.5vw), calc(-50% - 37.5vw));
+    border-left: none;
+    border-bottom: none;
+}
+
+.qr-frame-corner.bottom-left {
+    bottom: 50%;
+    left: 50%;
+    transform: translate(calc(-50% - 37.5vw), calc(50% + 37.5vw));
+    border-right: none;
+    border-top: none;
+}
+
+.qr-frame-corner.bottom-right {
+    bottom: 50%;
+    right: 50%;
+    transform: translate(calc(50% + 37.5vw), calc(50% + 37.5vw));
+    border-left: none;
+    border-top: none;
+}
+
+/* ================= LÍNEA ANIMADA ================ */
+@keyframes scanningLine {
+    0% {
+        top: 35%;
+    }
+
+    50% {
+        top: 50%;
+    }
+
+    100% {
+        top: 65%;
+    }
+}
+
+.qr-scanning-line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 280px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #e50914, transparent);
+    transform: translateX(-50%);
+    z-index: 10001;
+    animation: scanningLine 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(229, 9, 20, 0.6);
+}
+
+/* ================= BADGE ESCANEANDO ================ */
+.badge-escaneando {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(8px);
+}
+
+.qr-scanner-top-controls .badge-escaneando {
+    position: static;
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+@keyframes dotBlink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+.badge-escaneando .dot-rojo {
+    width: 8px;
+    height: 8px;
+    background-color: #e50914;
+    border-radius: 50%;
+    display: inline-block;
+    animation: dotBlink 1.5s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(229, 9, 20, 0.8);
+}
+
+/* ================= SELECTOR DE CÁMARA ================ */
+.camera-selector {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10002;
+    display: flex;
+    gap: 12px;
+}
+
+.btn-camera-toggle {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-camera-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+.btn-camera-toggle:active {
+    transform: scale(0.98);
+}
+
+.btn-camera-toggle.activa {
+    background-color: #e50914;
+    box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+}
+
+/* ================= QR SCANNER FULLSCREEN - OLD (mantener por compat.) ================ */
+.qr-scanner-fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9998;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+}
+
+.qr-scanner-fullscreen.oculto {
+    display: none;
+}
+
+.qr-scanner-top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+}
+
+.qr-scanner-top-bar h3 {
+    color: white;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.btn-detener-fullscreen {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+}
+
+.qr-scanner-bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px 50px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+}
+
+.qr-scanner-bottom-bar p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+}
+
+
+/* ================= PANTALLA KIOSKO ================ */
+.kiosko-pantalla {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9990;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    overflow: hidden;
+}
+
+.kiosko-pantalla.oculto {
+    display: none;
+}
+
+/* Mostrar cámara de fondo en modo kiosko - baja opacidad por defecto */
+body.scanner-activo #qr-reader:not(.oculta) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9991;
+    opacity: 0.08;
+    pointer-events: none;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    overflow: hidden;
+    display: block !important;
+    transition: opacity 0.3s ease;
+}
+
+/* Aumentar opacidad cuando se está escaneando */
+body.scanner-activo #qr-reader:not(.oculta).escaneando {
+    opacity: 0.7;
+}
+
+body.scanner-activo #qr-reader:not(.oculta) video {
+    width: 100vw !important;
+    height: 100vh !important;
+    object-fit: cover !important;
+}
+
+.kiosko-contenido {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+    text-align: center;
+    z-index: 9992;
+    position: relative;
+}
+
+.kiosko-header {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+}
+
+.kiosko-logo {
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #e50914;
+}
+
+.kiosko-nombre {
+    font-size: 38px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: white;
+}
+
+.kiosko-qr-icon {
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: kiosko-pulse 2s ease-in-out infinite;
+    position: relative;
+}
+
+.kiosko-qr-icon::before {
+    content: '';
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    border: 2px solid #e50914;
+    border-radius: 12px;
+    opacity: 0.3;
+    animation: kiosko-frame-pulse 2s ease-in-out infinite;
+}
+
+.kiosko-qr-icon svg {
+    width: 100%;
+    height: 100%;
+    stroke: #e50914;
+    stroke-width: 1.5;
+    z-index: 1;
+}
+
+@keyframes kiosko-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+@keyframes kiosko-frame-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(229, 9, 20, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px 5px rgba(229, 9, 20, 0.2);
+    }
+}
+
+.kiosko-texto {
+    font-size: 36px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    line-height: 1.3;
+    max-width: 600px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.kiosko-reloj {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    margin-top: 40px;
+}
+
+.kiosko-hora {
+    font-size: 72px;
+    font-weight: 900;
+    color: #e50914;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 4px;
+    text-shadow: 0 2px 10px rgba(229, 9, 20, 0.3);
+}
+
+.kiosko-fecha {
+    font-size: 24px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.btn-salir-kiosko {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 24px;
+    font-weight: 300;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s ease;
+    z-index: 9993;
+}
+
+.btn-salir-kiosko:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-salir-kiosko:active {
+    transform: scale(0.95);
+}
+
+body.scanner-activo .top-bar {
+    display: none !important;
+}
+
+body.scanner-activo .sidebar {
+    display: none !important;
+}

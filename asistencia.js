@@ -1,0 +1,877 @@
+// 1. CONFIGURACIÓN
+const supabaseUrl = 'https://mhipqrjxnyykrwfjquxy.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oaXBxcmp4bnl5a3J3ZmpxdXh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzYwNzIsImV4cCI6MjA5MzkxMjA3Mn0.U8nEWlt2ARh7Sq0ZX_boxXQGgbkuopAJqLtJcegPh34';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+// LEER EL ID DINÁMICAMENTE
+const GIMNASIO_ID = localStorage.getItem('gimnasio_id');
+
+// PROTECCIÓN: Si no hay ID, mandarlo al login inmediatamente
+if (!GIMNASIO_ID) {
+    window.location.href = 'login.html';
+}
+
+
+const btnTema = document.getElementById('cambiar-tema');
+const body = document.body;
+
+// Los 3 temas en orden
+const temas = ['dark', 'light', 'green'];
+
+// Cargar tema guardado (o dark por defecto)
+let temaActual = localStorage.getItem('tema') || 'dark';
+
+// Aplicar al cargar la página
+aplicarTema(temaActual);
+
+// Clic en el botón → pasar al siguiente tema
+btnTema.addEventListener('click', () => {
+    const index = temas.indexOf(temaActual);
+    temaActual = temas[(index + 1) % temas.length];
+    aplicarTema(temaActual);
+    localStorage.setItem('tema', temaActual);
+});
+
+function aplicarTema(tema) {
+    // Quitar todas las clases de tema
+    body.classList.remove('light', 'green');
+
+    // Agregar la clase si no es dark (dark es el :root, no necesita clase)
+    if (tema !== 'dark') {
+        body.classList.add(tema);
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const formAsistencia = document.getElementById('form-asistencia');
+    const inputAsistencia = document.getElementById('input-asistencia');
+    const dropdownAsistencia = document.getElementById('lista-clientes-dropdown');
+
+    const alertaIngreso = document.getElementById('alerta-ingreso');
+    const alertaTitulo = document.getElementById('alerta-titulo');
+    const alertaMensaje = document.getElementById('alerta-mensaje');
+    const alertaIcono = document.querySelector('.alerta-icono svg');
+    const tablaAsistencia = document.getElementById('tabla-asistencia');
+    const totalIngresosEl = document.querySelector('.tarjeta-valorr');
+
+    const previewSocio = document.getElementById('preview-socio');
+    const previewInicial = document.getElementById('preview-inicial');
+    const previewNombre = document.getElementById('preview-nombre');
+    const previewDni = document.getElementById('preview-dni');
+    const previewBadge = document.getElementById('preview-badge');
+
+    const iconoExito = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>';
+    const iconoError = '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>';
+
+
+    function reproducirSonido(tipo) {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+        if (tipo === 'exito') {
+            // BEEP limpio y corto - tipo torniquete de metro
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 1050;
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + 0.01);
+            gain.gain.setValueAtTime(0.9, ctx.currentTime + 0.18);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.35);
+
+        } else {
+            // SONIDO DE ERROR LARGO - 5 segundos similar al éxito pero más grave
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.value = 1050;
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.7, ctx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.7, ctx.currentTime + 4.95);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 5);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 5);
+        }
+    }
+
+    let timeoutBuscador = null;
+
+    // Actualiza el texto de la fecha de hoy en el header
+    const fechaHoyText = document.querySelector('.fecha-hoy p');
+    if (fechaHoyText) {
+        const opciones = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+        fechaHoyText.textContent = new Date().toLocaleDateString('es-ES', opciones);
+    }
+
+    // --- CARGAR ASISTENCIAS ---
+    async function cargarAsistencias(fechaStr) {
+        // fechaStr en formato YYYY-MM-DD
+        const startOfDay = new Date(`${fechaStr}T00:00:00`);
+        const endOfDay = new Date(`${fechaStr}T23:59:59.999`);
+
+        const { data, error } = await supabaseClient
+            .from('asistencias')
+            .select(`
+                id,
+                fecha_hora_ingreso,
+                socios (id, nombre, apellido, telefono, membresias_socios (estado, planes(nombre)))
+            `)
+            .eq('gimnasio_id', GIMNASIO_ID)
+            .gte('fecha_hora_ingreso', startOfDay.toISOString())
+            .lte('fecha_hora_ingreso', endOfDay.toISOString())
+            .order('fecha_hora_ingreso', { ascending: false });
+
+        const contenedorFilas = document.getElementById('contenedor-filas-asistencia');
+        contenedorFilas.innerHTML = '';
+
+        // Calcular fecha local para comparar "hoy" correctamente
+        const hoyLocal = new Date();
+        const yyyy = hoyLocal.getFullYear();
+        const mm = String(hoyLocal.getMonth() + 1).padStart(2, '0');
+        const dd = String(hoyLocal.getDate()).padStart(2, '0');
+        const hoyStrLocal = `${yyyy}-${mm}-${dd}`;
+
+        // Si la fecha es hoy, actualiza la tarjeta
+        if (fechaStr === hoyStrLocal && totalIngresosEl) {
+            totalIngresosEl.textContent = data ? data.length : 0;
+        }
+
+        if (error) {
+            console.error("Error al cargar asistencias", error);
+            return;
+        }
+
+        if (data.length === 0) {
+            contenedorFilas.innerHTML = '<p style="padding: 1rem; color: #888;">No hay ingresos registrados para esta fecha.</p>';
+            return;
+        }
+
+        data.forEach(asistencia => {
+            const socio = Array.isArray(asistencia.socios) ? asistencia.socios[0] : asistencia.socios;
+            if (!socio) return;
+
+            const nombreCompleto = `${socio.nombre} ${socio.apellido}`;
+            const iniciales = (socio.nombre.charAt(0) + socio.apellido.charAt(0)).toUpperCase();
+
+            const fechaIngreso = new Date(asistencia.fecha_hora_ingreso);
+            const hora = fechaIngreso.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+            let estado = "SIN PLAN";
+            let claseEstado = "vencido";
+
+            if (socio.membresias_socios && socio.membresias_socios.length > 0) {
+                const mem = Array.isArray(socio.membresias_socios) ? socio.membresias_socios[0] : socio.membresias_socios;
+                estado = mem.estado ? mem.estado.toUpperCase() : "VENCIDA";
+                claseEstado = estado === 'ACTIVA' ? 'activo' : 'vencido';
+            }
+
+            const html = `
+                <div class="cliente">
+                    <div class="socio-info">
+                        <div class="inicial">${iniciales}</div>
+                        <div class="nombre-correo">
+                            <h1>${nombreCompleto}</h1>
+                            <p>${socio.telefono || 'Sin Teléfono'}</p>
+                        </div>
+                    </div>
+                    <div class="vencimiento-info">
+                        <h1>${hora} hs</h1>
+                        <p>Ingreso</p>
+                    </div>
+                    <div>
+                        <div class="estado ${claseEstado}">${estado}</div>
+                    </div>
+                </div>
+            `;
+            contenedorFilas.insertAdjacentHTML('beforeend', html);
+        });
+    }
+
+    // Inicializar hoy
+    const filtroFecha = document.getElementById('filtro-fecha-asistencia');
+    const tituloTabla = document.getElementById('titulo-tabla-asistencia');
+
+    // Obtener hoy en zona local
+    const hoyParaInit = new Date();
+    const initY = hoyParaInit.getFullYear();
+    const initM = String(hoyParaInit.getMonth() + 1).padStart(2, '0');
+    const initD = String(hoyParaInit.getDate()).padStart(2, '0');
+    const initHoyStr = `${initY}-${initM}-${initD}`;
+
+    if (filtroFecha) {
+        filtroFecha.value = initHoyStr;
+        cargarAsistencias(initHoyStr);
+
+        filtroFecha.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val === initHoyStr) {
+                tituloTabla.textContent = "HISTORIAL DE ASISTENCIAS DE HOY";
+            } else {
+                const arr = val.split('-');
+                tituloTabla.textContent = `HISTORIAL DE ASISTENCIAS - ${arr[2]}/${arr[1]}/${arr[0]}`;
+            }
+            cargarAsistencias(val);
+        });
+    }
+
+    // --- BÚSQUEDA DE SOCIOS ---
+    async function buscarSocios(texto) {
+        let query = supabaseClient
+            .from('socios')
+            .select(`
+                id, nombre, apellido, telefono,
+                membresias_socios (
+                    id, estado, fecha_vencimiento, planes (nombre)
+                )
+            `)
+            .eq('gimnasio_id', GIMNASIO_ID)
+            .limit(50);
+
+        if (texto) {
+            query = query.or(`nombre.ilike.%${texto}%,apellido.ilike.%${texto}%`);
+        } else {
+            query = query.order('nombre', { ascending: true });
+        }
+
+        const { data, error } = await query;
+
+        if (error) {
+            console.error("Error buscando socios", error);
+            return;
+        }
+
+        dropdownAsistencia.innerHTML = '';
+        if (data.length === 0) {
+            dropdownAsistencia.innerHTML = '<div class="autocomplete-item"><span>No se encontraron socios</span></div>';
+            dropdownAsistencia.classList.add('activo');
+            return;
+        }
+
+        data.forEach(socio => {
+            const item = document.createElement('div');
+            item.className = 'autocomplete-item';
+            const nombreCompleto = `${socio.nombre} ${socio.apellido}`;
+            item.innerHTML = `
+                <span class="autocomplete-nombre">${nombreCompleto}</span>
+                <span class="autocomplete-dni">${socio.telefono || 'Sin Teléfono'}</span>
+            `;
+
+            item.addEventListener('click', () => {
+                inputAsistencia.value = nombreCompleto;
+                dropdownAsistencia.classList.remove('activo');
+                mostrarPreviewSocio(socio);
+            });
+
+            dropdownAsistencia.appendChild(item);
+        });
+        dropdownAsistencia.classList.add('activo');
+    }
+
+    inputAsistencia.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        previewSocio.classList.add('oculta'); // Ocultar preview al escribir
+
+        clearTimeout(timeoutBuscador);
+        timeoutBuscador = setTimeout(() => {
+            buscarSocios(val);
+        }, 300);
+    });
+
+    inputAsistencia.addEventListener('click', () => {
+        if (inputAsistencia.value.trim() === '') {
+            buscarSocios('');
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!inputAsistencia.contains(e.target) && !dropdownAsistencia.contains(e.target)) {
+            dropdownAsistencia.classList.remove('activo');
+        }
+    });
+
+    let socioSeleccionadoParaIngreso = null;
+
+    function mostrarPreviewSocio(socio) {
+        socioSeleccionadoParaIngreso = socio;
+
+        const nombreCompleto = `${socio.nombre} ${socio.apellido}`;
+        previewInicial.textContent = (socio.nombre.charAt(0) + socio.apellido.charAt(0)).toUpperCase();
+        previewNombre.textContent = nombreCompleto;
+        previewDni.textContent = socio.telefono || 'Sin teléfono';
+
+        let estado = 'vencido';
+        let textoEstado = 'SIN PLAN / VENCIDO';
+
+        if (socio.membresias_socios && socio.membresias_socios.length > 0) {
+            const mem = Array.isArray(socio.membresias_socios) ? socio.membresias_socios[0] : socio.membresias_socios;
+
+            const hoyIso = new Date().toISOString().split('T')[0];
+            const hoyF = new Date(hoyIso + 'T00:00:00');
+            const vencObj = new Date(mem.fecha_vencimiento + 'T00:00:00');
+            const diffTime = vencObj - hoyF;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            const nombrePlan = mem.planes ? (Array.isArray(mem.planes) ? mem.planes[0].nombre : mem.planes.nombre) : 'Plan';
+
+            if (mem.estado === 'Vencida' || diffDays < 0) {
+                estado = 'vencido';
+                textoEstado = `VENCIDO (${nombrePlan})`;
+            } else if (diffDays >= 0 && diffDays <= 3) {
+                estado = 'por-vencer';
+                textoEstado = `POR VENCER (${nombrePlan})`;
+            } else {
+                estado = 'activo';
+                textoEstado = `ACTIVO (${nombrePlan})`;
+            }
+        }
+
+        previewSocio.querySelector('.preview-estado').className = 'preview-estado ' + estado;
+        previewBadge.textContent = textoEstado;
+        previewSocio.classList.remove('oculta');
+
+        socioSeleccionadoParaIngreso.estadoComputado = estado;
+        socioSeleccionadoParaIngreso.textoEstado = textoEstado;
+    }
+
+    // --- REGISTRAR ASISTENCIA ---
+    if (formAsistencia) {
+        formAsistencia.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!socioSeleccionadoParaIngreso) {
+                return;
+            }
+
+            const socio = socioSeleccionadoParaIngreso;
+
+            if (socio.estadoComputado === 'vencido') {
+                alertaIngreso.className = 'alerta-ingreso error';
+                alertaTitulo.textContent = 'Acceso Denegado';
+                reproducirSonido('error'); // ✅ Sonido de error
+                alertaMensaje.textContent = `${socio.nombre} ${socio.apellido} - ${socio.textoEstado}`;
+                alertaIcono.innerHTML = iconoError;
+
+                setTimeout(() => {
+                    alertaIngreso.classList.add('oculta');
+                }, 4000);
+                return;
+            }
+
+            const { error } = await supabaseClient
+                .from('asistencias')
+                .insert({
+                    gimnasio_id: GIMNASIO_ID,
+                    socio_id: socio.id,
+                    estado: 'ingreso',
+                    tipo_registro: 'manual'
+                });
+
+            if (error) {
+                console.error("Error registrando asistencia", error);
+                alert("Error al registrar: " + error.message);
+                return;
+            }
+
+            alertaIngreso.className = 'alerta-ingreso exito';
+            alertaTitulo.textContent = 'Acceso Autorizado';
+            reproducirSonido('exito'); // ✅ Sonido de éxito
+            alertaMensaje.textContent = `${socio.nombre} ${socio.apellido} - ${socio.textoEstado}`;
+            alertaIcono.innerHTML = iconoExito;
+
+            setTimeout(() => {
+                alertaIngreso.classList.add('oculta');
+            }, 4000);
+
+            inputAsistencia.value = '';
+            previewSocio.classList.add('oculta');
+            socioSeleccionadoParaIngreso = null;
+
+            const filtroVal = document.getElementById('filtro-fecha-asistencia').value;
+            cargarAsistencias(filtroVal);
+
+            inputAsistencia.focus();
+        });
+    }
+
+    // --- LÓGICA ESCÁNER QR ---
+    let html5QrcodeScanner = null;
+    let escainerActivo = false;
+    let procesandoQr = false;
+    let cameraFacingMode = 'environment'; // Frontal: 'user', Trasera: 'environment'
+
+    const btnIniciarScanner = document.getElementById('btn-iniciar-scanner');
+    const qrReader = document.getElementById('qr-reader');
+    const qrResultado = document.getElementById('qr-resultado');
+    const qrResultadoInicial = document.getElementById('qr-resultado-inicial');
+    const qrResultadoNombre = document.getElementById('qr-resultado-nombre');
+    const qrResultadoEstado = document.getElementById('qr-resultado-estado');
+
+    async function validarMembresiaSocio(socioId) {
+        try {
+            const { data: membresias, error } = await supabaseClient
+                .from('membresias_socios')
+                .select('*, planes(nombre)')
+                .eq('socio_id', socioId)
+                .eq('gimnasio_id', GIMNASIO_ID)
+                .order('fecha_vencimiento', { ascending: false });
+
+            if (error) {
+                console.error('Error buscando membresías:', error);
+                return null;
+            }
+
+            if (!membresias || membresias.length === 0) {
+                console.log('Sin membresías registradas');
+                return null;
+            }
+
+            const hoyIso = new Date().toISOString().split('T')[0];
+            const hoyF = new Date(hoyIso + 'T00:00:00');
+
+            for (const membresia of membresias) {
+                const vencObj = new Date(membresia.fecha_vencimiento + 'T00:00:00');
+
+                if (membresia.estado === 'Activa' && vencObj >= hoyF) {
+                    console.log('Membresía válida encontrada:', membresia);
+                    return membresia;
+                }
+            }
+
+            console.log('Todas las membresías están vencidas o inactivas');
+            return null;
+        } catch (err) {
+            console.error('Error validando membresía:', err);
+            return null;
+        }
+    }
+
+    async function procesarQR(qrToken) {
+        if (procesandoQr) return;
+        procesandoQr = true;
+
+        const overlay = document.getElementById('qr-overlay-resultado');
+        const overlayTitulo = document.getElementById('qr-overlay-titulo');
+        const overlayNombre = document.getElementById('qr-overlay-nombre');
+        const overlayMensaje = document.getElementById('qr-overlay-mensaje');
+        const overlayIcono = document.getElementById('qr-overlay-icono');
+        const overlayBarra = document.getElementById('qr-overlay-barra-progreso');
+
+        // Aumentar opacidad de la cámara cuando se detecta un QR
+        qrReader.classList.add('escaneando');
+
+        function mostrarOverlay(tipo, nombre, mensaje) {
+            const svgExito = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+            const svgError = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+
+            overlay.className = `qr-overlay-resultado ${tipo}`;
+            overlayTitulo.textContent = tipo === 'exito' ? 'ACCESO PERMITIDO' : 'ACCESO DENEGADO';
+            overlayNombre.textContent = nombre;
+            overlayMensaje.textContent = mensaje;
+            overlayIcono.innerHTML = tipo === 'exito' ? svgExito : svgError;
+
+            overlayBarra.style.animation = 'none';
+            overlayBarra.offsetHeight;
+            overlayBarra.style.animation = 'barraTemporizador 5s linear forwards';
+
+            reproducirSonido(tipo === 'exito' ? 'exito' : 'error');
+
+            setTimeout(() => {
+                overlay.className = 'qr-overlay-resultado oculto';
+                // Volver a baja opacidad después de ocultar el overlay
+                qrReader.classList.remove('escaneando');
+                procesandoQr = false;
+            }, 5000);
+        }
+
+        try {
+            // Limpiar qrToken
+            const qrTokenLimpio = qrToken.trim();
+            console.log('QR Token recibido:', qrTokenLimpio);
+
+            const { data: socio, error } = await supabaseClient
+                .from('socios')
+                .select('id, nombre, apellido')
+                .eq('qr_token', qrTokenLimpio)
+                .eq('gimnasio_id', GIMNASIO_ID)
+                .maybeSingle();
+
+            if (error) {
+                console.error('Error buscando QR:', error);
+                mostrarOverlay('error', 'Error', 'Problema al procesar el QR');
+                return;
+            }
+
+            if (!socio) {
+                console.log('QR no encontrado en base de datos');
+                mostrarOverlay('error', 'QR No Válido', 'Este código no pertenece a ningún socio');
+                return;
+            }
+
+            const nombreCompleto = `${socio.nombre} ${socio.apellido}`;
+            const membresia = await validarMembresiaSocio(socio.id);
+
+            if (!membresia) {
+                console.log('Membresía no válida para:', nombreCompleto);
+                await supabaseClient.from('asistencias').insert({
+                    gimnasio_id: GIMNASIO_ID,
+                    socio_id: socio.id,
+                    estado: 'denegado',
+                    tipo_registro: 'qr'
+                });
+                mostrarOverlay('error', nombreCompleto, 'Membresía vencida o inactiva');
+                return;
+            }
+
+            console.log('Acceso permitido para:', nombreCompleto);
+            await supabaseClient.from('asistencias').insert({
+                gimnasio_id: GIMNASIO_ID,
+                socio_id: socio.id,
+                estado: 'ingreso',
+                tipo_registro: 'qr'
+            });
+
+            const filtroVal = document.getElementById('filtro-fecha-asistencia').value;
+            cargarAsistencias(filtroVal);
+
+            mostrarOverlay('exito', nombreCompleto, '¡Bienvenido/a!');
+
+        } catch (err) {
+            console.error('Error procesando QR:', err);
+            mostrarOverlay('error', 'Error', 'Problema al procesar el QR');
+            procesandoQr = false;
+        }
+    }
+
+    if (btnIniciarScanner) {
+        btnIniciarScanner.addEventListener('click', async () => {
+            if (escainerActivo) return;
+
+            escainerActivo = true;
+            btnIniciarScanner.classList.add('oculta');
+            qrReader.classList.remove('oculta');
+            qrResultado.classList.add('oculta');
+
+            try {
+                html5QrcodeScanner = new Html5Qrcode('qr-reader');
+
+                await html5QrcodeScanner.start(
+                    { facingMode: cameraFacingMode },
+                    {
+                        fps: 30,
+                        qrbox: { width: 400, height: 400 },
+                        aspectRatio: 1.0,
+                        disableFlip: true,
+                        showTorchButtonIfSupported: false,
+                        showZoomSliderIfSupported: false,
+                        defaultZoomValueIfSupported: 1.2,
+                        rememberLastUsedCamera: true
+                    },
+                    (decodedText) => {
+                        procesarQR(decodedText);
+                    },
+                    () => { }
+                );
+
+            } catch (err) {
+                console.error('Error iniciando escáner:', err);
+                alert('No se pudo acceder a la cámara');
+                escainerActivo = false;
+                btnIniciarScanner.classList.remove('oculta');
+                qrReader.classList.add('oculta');
+            }
+        });
+    }
+
+    async function detenerScanner() {
+        if (!escainerActivo) return;
+
+        try {
+            if (html5QrcodeScanner) {
+                await html5QrcodeScanner.stop();
+                html5QrcodeScanner = null;
+            }
+            escainerActivo = false;
+            procesandoQr = false;
+            if (btnIniciarScanner) {
+                btnIniciarScanner.classList.remove('oculta');
+            }
+            if (qrReader) {
+                qrReader.classList.add('oculta');
+            }
+            if (qrResultado) {
+                qrResultado.classList.add('oculta');
+            }
+            // Asegurar que el overlay se oculte y se restaure el overflow del body
+            const overlay = document.getElementById('qr-scanner-fullscreen-overlay');
+            if (overlay) {
+                overlay.classList.add('oculta');
+            }
+            document.body.style.overflow = '';
+        } catch (err) {
+            console.error('Error deteniendo escáner:', err);
+        }
+    }
+
+    // --- CAMBIAR CÁMARA ---
+    async function cambiarCamara(facingMode) {
+        if (!escainerActivo) return;
+
+        cameraFacingMode = facingMode;
+
+        try {
+            if (html5QrcodeScanner) {
+                await html5QrcodeScanner.stop();
+                html5QrcodeScanner.clear();
+            }
+
+            html5QrcodeScanner = new Html5Qrcode('qr-reader');
+
+            await html5QrcodeScanner.start(
+                { facingMode: cameraFacingMode },
+                {
+                    fps: 30,
+                    qrbox: { width: 400, height: 400 },
+                    aspectRatio: 1.0,
+                    disableFlip: true,
+                    showTorchButtonIfSupported: false,
+                    showZoomSliderIfSupported: false,
+                    defaultZoomValueIfSupported: 1.2,
+                    rememberLastUsedCamera: true
+                },
+                (decodedText) => {
+                    procesarQR(decodedText);
+                },
+                () => { }
+            );
+
+            // Actualizar estado de botones
+            const btnCameraFrontal = document.getElementById('btn-camera-frontal');
+            const btnCameraTrasera = document.getElementById('btn-camera-trasera');
+
+            if (btnCameraFrontal && btnCameraTrasera) {
+                if (facingMode === 'user') {
+                    btnCameraFrontal.classList.add('activa');
+                    btnCameraTrasera.classList.remove('activa');
+                } else {
+                    btnCameraFrontal.classList.remove('activa');
+                    btnCameraTrasera.classList.add('activa');
+                }
+            }
+        } catch (err) {
+            console.error('Error cambiando cámara:', err);
+        }
+    }
+
+    // --- DELEGACIÓN DE EVENTOS PARA BOTONES DE CÁMARA Y VOLVER ---
+    document.addEventListener('click', async (e) => {
+        if (e.target.closest('#btn-detener-scanner')) {
+            await detenerScanner();
+        }
+        if (e.target.closest('#btn-camera-frontal')) {
+            cambiarCamara('user');
+        }
+        if (e.target.closest('#btn-camera-trasera')) {
+            cambiarCamara('environment');
+        }
+    });
+
+    // --- MODO KIOSKO ---
+    let kioskoPantalla = document.getElementById('kiosko-pantalla');
+    let btnModoKiosko = document.getElementById('btn-modo-kiosko');
+    let btnSalirKiosko = document.getElementById('btn-salir-kiosko');
+    let kioskActivo = false;
+    let wakeLock = null;
+    let relojInterval = null;
+
+    function actualizarRelojKiosko() {
+        const ahora = new Date();
+        const horas = String(ahora.getHours()).padStart(2, '0');
+        const minutos = String(ahora.getMinutes()).padStart(2, '0');
+        const horaTexto = `${horas}:${minutos}`;
+
+        const opciones = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+        const fechaTexto = ahora.toLocaleDateString('es-ES', opciones);
+
+        const horaEl = document.getElementById('kiosko-hora');
+        const fechaEl = document.getElementById('kiosko-fecha');
+
+        if (horaEl) horaEl.textContent = horaTexto;
+        if (fechaEl) fechaEl.textContent = fechaTexto.charAt(0).toUpperCase() + fechaTexto.slice(1);
+    }
+
+    if (btnModoKiosko) {
+        btnModoKiosko.addEventListener('click', async () => {
+            if (kioskActivo) return;
+
+            kioskActivo = true;
+            kioskoPantalla.classList.remove('oculto');
+            document.body.classList.add('scanner-activo');
+
+            // Mostrar qr-reader de fondo en kiosko
+            qrReader.classList.remove('oculta');
+
+            // Actualizar reloj inmediatamente y cada segundo
+            actualizarRelojKiosko();
+            relojInterval = setInterval(actualizarRelojKiosko, 1000);
+
+            // Solicitar WakeLock
+            try {
+                if (navigator.wakeLock) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                }
+            } catch (err) {
+                console.log('WakeLock no disponible:', err);
+            }
+
+            // Iniciar cámara frontal
+            try {
+                if (html5QrcodeScanner) {
+                    await html5QrcodeScanner.stop();
+                    html5QrcodeScanner = null;
+                }
+
+                html5QrcodeScanner = new Html5Qrcode('qr-reader');
+                cameraFacingMode = 'user';
+                escainerActivo = true;
+
+                await html5QrcodeScanner.start(
+                    { facingMode: 'user' },
+                    {
+                        fps: 30,
+                        qrbox: { width: 500, height: 500 },
+                        aspectRatio: 1.0,
+                        disableFlip: true,
+                        showTorchButtonIfSupported: false,
+                        showZoomSliderIfSupported: false,
+                        defaultZoomValueIfSupported: 1.5,
+                        rememberLastUsedCamera: true,
+                        videoConstraints: {
+                            facingMode: 'user',
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        }
+                    },
+                    (decodedText) => {
+                        procesarQR(decodedText);
+                    },
+                    () => { }
+                );
+            } catch (err) {
+                console.error('Error iniciando cámara en kiosko:', err);
+                kioskActivo = false;
+                kioskoPantalla.classList.add('oculto');
+                document.body.classList.remove('scanner-activo');
+                qrReader.classList.add('oculta');
+                clearInterval(relojInterval);
+                escainerActivo = false;
+            }
+        });
+    }
+
+    if (btnSalirKiosko) {
+        btnSalirKiosko.addEventListener('click', async () => {
+            if (!kioskActivo) return;
+
+            kioskActivo = false;
+            kioskoPantalla.classList.add('oculto');
+            document.body.classList.remove('scanner-activo');
+            qrReader.classList.add('oculta');
+
+            clearInterval(relojInterval);
+            procesandoQr = false;
+
+            try {
+                if (html5QrcodeScanner) {
+                    await html5QrcodeScanner.stop();
+                    html5QrcodeScanner = null;
+                }
+                escainerActivo = false;
+            } catch (err) {
+                console.error('Error deteniendo cámara:', err);
+            }
+
+            // Liberar WakeLock
+            if (wakeLock) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                } catch (err) {
+                    console.log('Error liberando WakeLock:', err);
+                }
+            }
+        });
+    }
+});
+
+
+// --- LOGICA DEL FOOTER DEL SIDEBAR ---
+async function cargarDatosUsuario() {
+    const gymId = localStorage.getItem("gimnasio_id");
+
+    if (!gymId) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    // 1. Buscamos el nombre actualizado directamente en la base de datos
+    const { data, error } = await supabaseClient
+        .from("gimnasios")
+        .select("nombre")
+        .eq("id", gymId)
+        .single();
+
+    if (error) {
+        console.error("Error cargando nombre:", error);
+        return;
+    }
+
+    if (data) {
+        const nombreGym = data.nombre; // Aquí vendrá "enzou" o el que pongas en la BD
+
+        // 2. Actualizamos el texto en el sidebar
+        const labelNombre = document.getElementById("sidebar-user-name");
+        if (labelNombre) labelNombre.textContent = nombreGym;
+
+        // 3. Generamos las iniciales dinámicamente
+        const inicialesElemento = document.getElementById("user-initials");
+        if (inicialesElemento) {
+            const partes = nombreGym.trim().split(" ");
+            let iniciales = "";
+
+            if (partes.length > 1) {
+                // Si es "Enzo Gym" -> "EG"
+                iniciales = partes[0].charAt(0) + partes[1].charAt(0);
+            } else {
+                // Si es "enzou" -> "EN" (primeras dos letras) o solo "E"
+                iniciales = partes[0].substring(0, 2);
+            }
+            inicialesElemento.textContent = iniciales.toUpperCase();
+        }
+    }
+}
+
+// Llamar a la función al cargar la página
+cargarDatosUsuario();
+
+// --- LOGICA DE CERRAR SESIÓN ---
+const btnLogout = document.getElementById("btn-logout");
+if (btnLogout) {
+    btnLogout.addEventListener("click", async () => {
+        const confirmar = confirm("¿Estás seguro que deseas cerrar sesión?");
+        if (confirmar) {
+            // 1. Cerrar en Supabase
+            await supabaseClient.auth.signOut();
+            // 2. Limpiar LocalStorage
+            localStorage.clear();
+            // 3. Redirigir al login
+            window.location.href = "index.html";
+        }
+    });
+}

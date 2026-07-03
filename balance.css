@@ -1,0 +1,466 @@
+/* =========================================
+   BALANCE CSS
+========================================= */
+
+body {
+    overflow: hidden; /* Fix double scroll */
+}
+
+.balance-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 40px;
+}
+
+/* ================= SECTION 1: HEADER ================ */
+.balance-header-section {
+    padding: 30px;
+    background: var(--gradiente-tarjeta);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    flex-shrink: 0; /* Prevent squishing */
+}
+
+/* Decoration glow behind text */
+.balance-header-section::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(229,9,20,0.15) 0%, rgba(0,0,0,0) 70%);
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+    pointer-events: none;
+}
+
+.header-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    z-index: 2;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-descarga-img, .btn-descarga-pdf {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-descarga-img {
+    background: transparent;
+    border: 1px solid var(--texto-secundario);
+    color: var(--texto-principal);
+}
+.btn-descarga-img:hover {
+    background: var(--color-tarjeta-elevada);
+}
+
+.btn-descarga-pdf {
+    background: var(--color-rojo);
+    border: 1px solid var(--color-rojo);
+    color: white;
+}
+.btn-descarga-pdf:hover {
+    filter: brightness(1.1);
+}
+
+.balance-subtitle {
+    color: var(--color-rojo);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+.balance-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--texto-principal);
+    margin-bottom: 10px;
+}
+
+.text-red {
+    color: var(--color-rojo);
+}
+
+.balance-desc {
+    color: var(--texto-secundario);
+    font-size: 14px;
+    margin-bottom: 0;
+}
+
+.mes-nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.mes-selector {
+    display: flex;
+    align-items: center;
+    background: var(--color-tarjeta-elevada);
+    border: 1px solid var(--borde-tarjeta);
+    border-radius: 12px;
+    padding: 5px;
+    gap: 15px;
+}
+
+.btn-mes-nav {
+    background: transparent;
+    border: none;
+    color: var(--texto-secundario);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-mes-nav:hover {
+    background: var(--color-tarjeta);
+    color: var(--texto-principal);
+}
+
+#label-mes-actual {
+    font-weight: 700;
+    color: var(--texto-principal);
+    font-size: 15px;
+    min-width: 120px;
+    text-align: center;
+}
+
+.chips-meses {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.chip-mes {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--texto-secundario);
+    background: var(--color-tarjeta-elevada);
+    border: 1px solid var(--borde-tarjeta);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+}
+
+.chip-mes:hover {
+    color: var(--texto-principal);
+    border-color: var(--texto-secundario);
+}
+
+.chip-mes.activo {
+    background: var(--color-rojo);
+    color: white;
+    border-color: var(--color-rojo);
+}
+
+/* ================= SECTION 2: RESUMEN ================ */
+.balance-resumen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+}
+
+.resumen-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.resumen-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--color-fondo-icono);
+    color: var(--color-rojo);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resumen-subtitle {
+    color: var(--color-rojo);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.resumen-title {
+    color: var(--texto-principal);
+    font-size: 18px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.resumen-right {
+    text-align: right;
+}
+
+.ganancia-label {
+    color: var(--texto-secundario);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.ganancia-valor {
+    font-size: 24px;
+    font-weight: 900;
+}
+.ganancia-valor.positivo { color: var(--estado-activo); }
+.ganancia-valor.negativo { color: var(--color-rojo); }
+
+.balance-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin: 0; /* Override default margin from socio.css */
+}
+
+.balance-icon {
+    background: transparent;
+    width: auto;
+    height: auto;
+}
+
+.green-icon { color: var(--estado-activo); }
+.red-icon { color: var(--color-rojo); }
+.blue-icon { color: #3b82f6; }
+
+/* Subtext colors based on positive/negative */
+.sub-positivo { color: var(--estado-activo); }
+.sub-negativo { color: var(--color-rojo); }
+.sub-neutral { color: var(--texto-secundario); }
+
+/* ================= SECTION 3: GRÁFICOS ================ */
+.balance-graficos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.grafico-card {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    border-radius: 16px;
+}
+
+.grafico-card h3 {
+    color: var(--texto-principal);
+    font-size: 16px;
+    font-weight: 900;
+    margin-bottom: 20px;
+}
+
+.chart-container {
+    position: relative;
+    height: 250px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-leyenda {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.leyenda-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.leyenda-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--texto-secundario);
+}
+
+.leyenda-color {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.leyenda-monto {
+    color: var(--texto-principal);
+    font-weight: 700;
+}
+
+/* ================= SECTION 4: TABLA ================ */
+.balance-tabla-section {
+    padding: 24px;
+}
+
+.balance-tabla-section h3 {
+    color: var(--texto-principal);
+    font-size: 18px;
+    font-weight: 900;
+    margin-bottom: 20px;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.balance-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px;
+}
+
+.balance-table th {
+    text-align: left;
+    color: var(--texto-secundario);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--borde-tarjeta);
+}
+
+.balance-table th:not(:first-child) {
+    text-align: center;
+}
+
+.balance-table td {
+    padding: 15px;
+    background: var(--color-tarjeta-elevada);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--texto-principal);
+}
+
+.balance-table td:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.balance-table td:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.balance-table td:not(:first-child) {
+    text-align: center;
+}
+
+/* Colores específicos de columnas */
+.col-ingreso { color: var(--estado-activo) !important; }
+.col-gasto { color: var(--color-rojo) !important; }
+.col-neto { font-weight: 900 !important; }
+
+/* Fila actual */
+.fila-actual td {
+    background: rgba(229,9,20,0.05);
+}
+
+.badge-actual {
+    font-size: 9px;
+    color: var(--color-rojo);
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* ================= FOOTER ================ */
+.footer-text {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.footer-text p {
+    color: var(--texto-secundario);
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* ================= RESPONSIVE ================ */
+@media (max-width: 768px) {
+    .balance-graficos {
+        grid-template-columns: 1fr;
+    }
+    
+    .mes-nav-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .header-top-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .balance-cards {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .chips-meses {
+        width: 100%;
+        overflow-x: auto;
+        padding-bottom: 5px;
+        flex-wrap: nowrap;
+    }
+    
+    .chip-mes {
+        white-space: nowrap;
+    }
+    
+    .balance-resumen-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .resumen-right {
+        text-align: left;
+    }
+}
+
+.grid-historial { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
+@media (max-width: 900px) { .grid-historial { grid-template-columns: 1fr; } }
+
+
+.grafico-mitad { width: 50%; }
+@media (max-width: 768px) { .grafico-mitad { width: 100%; } }
+
