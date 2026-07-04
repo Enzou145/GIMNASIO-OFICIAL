@@ -3,7 +3,8 @@
 ========================================= */
 
 body {
-    overflow: hidden; /* Fix double scroll */
+    overflow: hidden;
+    /* Fix double scroll */
 }
 
 .balance-content {
@@ -22,7 +23,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 30px;
-    flex-shrink: 0; /* Prevent squishing */
+    flex-shrink: 0;
+    /* Prevent squishing */
 }
 
 /* Decoration glow behind text */
@@ -33,7 +35,7 @@ body {
     right: 0;
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle, rgba(229,9,20,0.15) 0%, rgba(0,0,0,0) 70%);
+    background: radial-gradient(circle, rgba(229, 9, 20, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
     border-radius: 50%;
     transform: translate(30%, -30%);
     pointer-events: none;
@@ -52,7 +54,8 @@ body {
     gap: 10px;
 }
 
-.btn-descarga-img, .btn-descarga-pdf {
+.btn-descarga-img,
+.btn-descarga-pdf {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -69,6 +72,7 @@ body {
     border: 1px solid var(--texto-secundario);
     color: var(--texto-principal);
 }
+
 .btn-descarga-img:hover {
     background: var(--color-tarjeta-elevada);
 }
@@ -78,6 +82,7 @@ body {
     border: 1px solid var(--color-rojo);
     color: white;
 }
+
 .btn-descarga-pdf:hover {
     filter: brightness(1.1);
 }
@@ -185,9 +190,10 @@ body {
 
 /* ================= SECTION 2: RESUMEN ================ */
 .balance-resumen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
     padding: 20px 25px;
 }
 
@@ -237,14 +243,21 @@ body {
     font-size: 24px;
     font-weight: 900;
 }
-.ganancia-valor.positivo { color: var(--estado-activo); }
-.ganancia-valor.negativo { color: var(--color-rojo); }
+
+.ganancia-valor.positivo {
+    color: var(--estado-activo);
+}
+
+.ganancia-valor.negativo {
+    color: var(--color-rojo);
+}
 
 .balance-cards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 15px;
-    margin: 0; /* Override default margin from socio.css */
+    margin: 0;
+    /* Override default margin from socio.css */
 }
 
 .balance-icon {
@@ -253,14 +266,30 @@ body {
     height: auto;
 }
 
-.green-icon { color: var(--estado-activo); }
-.red-icon { color: var(--color-rojo); }
-.blue-icon { color: #3b82f6; }
+.green-icon {
+    color: var(--estado-activo);
+}
+
+.red-icon {
+    color: var(--color-rojo);
+}
+
+.blue-icon {
+    color: #3b82f6;
+}
 
 /* Subtext colors based on positive/negative */
-.sub-positivo { color: var(--estado-activo); }
-.sub-negativo { color: var(--color-rojo); }
-.sub-neutral { color: var(--texto-secundario); }
+.sub-positivo {
+    color: var(--estado-activo);
+}
+
+.sub-negativo {
+    color: var(--color-rojo);
+}
+
+.sub-neutral {
+    color: var(--texto-secundario);
+}
 
 /* ================= SECTION 3: GRÁFICOS ================ */
 .balance-graficos {
@@ -322,6 +351,29 @@ body {
 .leyenda-monto {
     color: var(--texto-principal);
     font-weight: 700;
+}
+
+.leyenda-total {
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--borde-tarjeta);
+}
+
+.leyenda-total .leyenda-left span {
+    color: var(--texto-principal);
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.leyenda-total .leyenda-monto {
+    color: var(--color-rojo);
+    font-weight: 900;
+    font-size: 13px;
+}
+
+.leyenda-monto-verde {
+    color: var(--estado-activo) !important;
 }
 
 /* ================= SECTION 4: TABLA ================ */
@@ -387,13 +439,21 @@ body {
 }
 
 /* Colores específicos de columnas */
-.col-ingreso { color: var(--estado-activo) !important; }
-.col-gasto { color: var(--color-rojo) !important; }
-.col-neto { font-weight: 900 !important; }
+.col-ingreso {
+    color: var(--estado-activo) !important;
+}
+
+.col-gasto {
+    color: var(--color-rojo) !important;
+}
+
+.col-neto {
+    font-weight: 900 !important;
+}
 
 /* Fila actual */
 .fila-actual td {
-    background: rgba(229,9,20,0.05);
+    background: rgba(229, 9, 20, 0.05);
 }
 
 .badge-actual {
@@ -420,15 +480,20 @@ body {
     .balance-graficos {
         grid-template-columns: 1fr;
     }
-    
+
     .mes-nav-container {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .header-top-row {
         flex-direction: column;
         gap: 20px;
+    }
+
+    .balance-title,
+    .balance-desc {
+        display: none;
     }
 
     .balance-cards {
@@ -437,30 +502,48 @@ body {
 
     .chips-meses {
         width: 100%;
-        overflow-x: auto;
-        padding-bottom: 5px;
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
     }
-    
+
+    /* Mostrar solo los últimos 4 chips (actual + 3 anteriores) en mobile */
     .chip-mes {
-        white-space: nowrap;
+        display: none;
     }
-    
+
+    .chip-mes:nth-last-child(-n+4) {
+        display: block;
+    }
+
     .balance-resumen-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
+        flex-direction: row;
+        align-items: center;
     }
-    
+
     .resumen-right {
-        text-align: left;
+        text-align: right;
     }
 }
 
-.grid-historial { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-@media (max-width: 900px) { .grid-historial { grid-template-columns: 1fr; } }
+.grid-historial {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+    .grid-historial {
+        grid-template-columns: 1fr;
+    }
+}
 
 
-.grafico-mitad { width: 50%; }
-@media (max-width: 768px) { .grafico-mitad { width: 100%; } }
+.grafico-mitad {
+    width: 50%;
+}
 
+@media (max-width: 768px) {
+    .grafico-mitad {
+        width: 100%;
+    }
+}

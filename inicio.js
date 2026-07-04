@@ -407,11 +407,14 @@ async function cargarDashboard() {
         const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1).toISOString();
         const hoyIso = hoy.toISOString().split('T')[0];
 
-        // 1. Ingresos del Mes (Ahora histórico)
+        // 1. Ingresos del Mes
+        const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0, 23, 59, 59, 999).toISOString();
         const { data: pagos, error: errPagos } = await supabaseClient
             .from('pagos')
             .select('monto')
-            .eq('gimnasio_id', gymId);
+            .eq('gimnasio_id', gymId)
+            .gte('fecha_pago', primerDiaMes)
+            .lte('fecha_pago', ultimoDiaMes);
 
         if (!errPagos && pagos) {
             const ingresos = pagos.reduce((acc, curr) => acc + Number(curr.monto), 0);

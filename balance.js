@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // UTILIDADES
 function formatCurrency(monto) {
-    return '$ ' + parseFloat(monto || 0).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    return '$\u00A0' + parseFloat(monto || 0).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function getRangoMes(fecha) {
@@ -286,6 +286,19 @@ async function getAltasMes(inicio, fin) {
     return count || 0;
 }
 
+// Cuenta altas + renovaciones del mes (cada una genera un pago)
+async function getSociosPagadosMes(inicio, fin) {
+    const { count, error } = await supabaseClient
+        .from('pagos')
+        .select('*', { count: 'exact', head: true })
+        .eq('gimnasio_id', GIMNASIO_ID)
+        .gte('fecha_pago', inicio)
+        .lte('fecha_pago', fin);
+
+    if (error) { console.error('Error socios pagados:', error); return 0; }
+    return count || 0;
+}
+
 async function getBajasMes(inicio, fin) {
     // Bajas: socios cuya membresía venció ese mes
     const { count, error } = await supabaseClient
@@ -333,11 +346,14 @@ async function cargarResumenMes(fecha) {
     // Actualizar UI
     document.getElementById('val-ingresos').textContent = formatCurrency(ingresos);
     document.getElementById('val-gastos').textContent = formatCurrency(gastos);
-    document.getElementById('val-activos').textContent = activos;
+    const elActivos = document.getElementById('val-activos');
+    if (elActivos) elActivos.textContent = activos;
 
     const elNeto = document.getElementById('val-ganancia');
-    elNeto.textContent = formatCurrency(neto);
-    elNeto.className = 'tarjeta-valor ganancia-valor ' + (neto >= 0 ? 'positivo' : 'negativo');
+    if (elNeto) {
+        elNeto.textContent = formatCurrency(neto);
+        elNeto.className = 'tarjeta-valor ganancia-valor ' + (neto >= 0 ? 'positivo' : 'negativo');
+    }
 
     const elNetoHeader = document.getElementById('val-ganancia-header');
     if (elNetoHeader) {
@@ -356,8 +372,10 @@ async function cargarResumenMes(fecha) {
     subGas.className = 'tarjeta-sub ' + (gastos <= gasAnt ? 'sub-positivo' : 'sub-negativo');
 
     const subAct = document.getElementById('sub-activos');
-    subAct.textContent = calcularPorcentaje(activos, actAnt); // Note: actAnt is same as activos in this simple demo
-    subAct.className = 'tarjeta-sub sub-neutral';
+    if (subAct) {
+        subAct.textContent = calcularPorcentaje(activos, actAnt); // Note: actAnt is same as activos in this simple demo
+        subAct.className = 'tarjeta-sub sub-neutral';
+    }
 }
 
 // ---------------------------------------------
@@ -453,6 +471,17 @@ async function cargarGraficoGastosPorCategoria(fecha) {
             </div>
         `;
     });
+
+    // Fila de total
+    const totalGastos = values.reduce((sum, v) => sum + v, 0);
+    leyendaContainer.innerHTML += `
+        <div class="leyenda-item leyenda-total">
+            <div class="leyenda-left">
+                <span>TOTAL</span>
+            </div>
+            <div class="leyenda-monto">${formatCurrency(totalGastos)}</div>
+        </div>
+    `;
 }
 
 async function cargarGraficoIngresosPorPlan(fecha) {
@@ -548,6 +577,17 @@ async function cargarGraficoIngresosPorPlan(fecha) {
             </div>
         `;
     });
+
+    // Fila de total
+    const totalIngresos = values.reduce((sum, v) => sum + v, 0);
+    leyendaContainer.innerHTML += `
+        <div class="leyenda-item leyenda-total">
+            <div class="leyenda-left">
+                <span>TOTAL</span>
+            </div>
+            <div class="leyenda-monto leyenda-monto-verde">${formatCurrency(totalIngresos)}</div>
+        </div>
+    `;
 }
 
 // ---------------------------------------------
@@ -570,7 +610,7 @@ async function cargarTablaComparativa() {
         promesas.push(Promise.all([
             getIngresosMes(primerDia, ultimoDia),
             getGastosMes(primerDia, ultimoDia),
-            getSociosActivosEnMes(primerDia, ultimoDia)
+            getSociosPagadosMes(primerDia, ultimoDia)
         ]));
     }
 
@@ -722,9 +762,9 @@ function descargarPDF() {
     // Leer datos del DOM (ya están cargados por JS)
     const mesTitulo = document.getElementById('titulo-mes-resumen')?.textContent?.trim() || 'Mes';
     const valIngresos = document.getElementById('val-ingresos')?.textContent?.trim() || '-';
-    const valGastos   = document.getElementById('val-gastos')?.textContent?.trim()   || '-';
+    const valGastos = document.getElementById('val-gastos')?.textContent?.trim() || '-';
     const valGanancia = document.getElementById('val-ganancia-header')?.textContent?.trim() || '-';
-    const valActivos  = document.getElementById('val-activos')?.textContent?.trim()  || '-';
+    const valActivos = document.getElementById('val-activos')?.textContent?.trim() || '-';
 
     // ── ENCABEZADO ──────────────────────────────────────────
     pdf.setFillColor(30, 30, 40);
@@ -740,17 +780,17 @@ function descargarPDF() {
     pdf.setTextColor(180, 180, 180);
     pdf.text('BALANCE MENSUAL  ·  ' + mesTitulo.toUpperCase(), 14, 23);
 
-    const hoy = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const hoy = new Date().toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     pdf.text('Generado: ' + hoy, 14, 30);
 
     y = 48;
 
     // ── TARJETAS RESUMEN ─────────────────────────────────────
     const cards = [
-        { label: 'INGRESOS',     valor: valIngresos, color: [16, 185, 129] },
-        { label: 'GASTOS',       valor: valGastos,   color: [239, 68,  68]  },
-        { label: 'GANANCIA NETA',valor: valGanancia, color: [99, 102, 241]  },
-        { label: 'SOCIOS ACTIVOS',valor: valActivos, color: [234, 179, 8]   },
+        { label: 'INGRESOS', valor: valIngresos, color: [16, 185, 129] },
+        { label: 'GASTOS', valor: valGastos, color: [239, 68, 68] },
+        { label: 'GANANCIA NETA', valor: valGanancia, color: [99, 102, 241] },
+        { label: 'SOCIOS ACTIVOS', valor: valActivos, color: [234, 179, 8] },
     ];
 
     const cardW = 42;
@@ -876,146 +916,42 @@ document.addEventListener('DOMContentLoaded', () => {
 // DESCARGA IMAGEN DEL RESUMEN
 // ---------------------------------------------
 function descargarImagen() {
-    const mesTitulo = document.getElementById('titulo-mes-resumen')?.textContent?.trim() || 'Mes';
-    const valIngresos = document.getElementById('val-ingresos')?.textContent?.trim() || '-';
-    const valGastos   = document.getElementById('val-gastos')?.textContent?.trim()   || '-';
-    const valGanancia = document.getElementById('val-ganancia-header')?.textContent?.trim() || '-';
-    const valActivos  = document.getElementById('val-activos')?.textContent?.trim()  || '-';
+    const contenedor = document.querySelector('.balance-content');
+    if (!contenedor) return;
 
-    const W = 900;
-    const H = 600;
-    const canvas = document.createElement('canvas');
-    canvas.width = W;
-    canvas.height = H;
-    const ctx = canvas.getContext('2d');
+    // Ocultar botones de descarga en la imagen
+    const headerActions = document.querySelector('.header-actions');
+    const prevDisplay = headerActions ? headerActions.style.display : '';
+    if (headerActions) headerActions.style.display = 'none';
 
-    // ── FONDO ──────────────────────────────────
-    ctx.fillStyle = '#0f0f1a';
-    ctx.fillRect(0, 0, W, H);
+    // Ocultar selector de meses (botones de flecha) para que la imagen quede más limpia
+    const btnPrev = document.getElementById('btn-mes-prev');
+    const btnNext = document.getElementById('btn-mes-next');
+    const prevDisplayBtn = btnPrev ? btnPrev.style.display : '';
+    if (btnPrev) btnPrev.style.display = 'none';
+    if (btnNext) btnNext.style.display = 'none';
 
-    // ── ENCABEZADO ──────────────────────────────
-    ctx.fillStyle = '#1a1a2e';
-    ctx.fillRect(0, 0, W, 90);
+    html2canvas(contenedor, {
+        backgroundColor: getComputedStyle(document.body).backgroundColor || '#0f0f1a',
+        scale: 2 // Mayor resolución
+    }).then(canvas => {
+        // Restaurar botones
+        if (headerActions) headerActions.style.display = prevDisplay;
+        if (btnPrev) btnPrev.style.display = prevDisplayBtn;
+        if (btnNext) btnNext.style.display = prevDisplayBtn;
 
-    ctx.font = 'bold 32px sans-serif';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText('GYM CRONOS', 30, 42);
-
-    ctx.font = '14px sans-serif';
-    ctx.fillStyle = '#9ca3af';
-    ctx.fillText('BALANCE MENSUAL  ·  ' + mesTitulo.toUpperCase(), 30, 65);
-
-    const hoy = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
-    ctx.fillText('Generado: ' + hoy, 30, 82);
-
-    // ── TARJETAS ────────────────────────────────
-    const cards = [
-        { label: 'INGRESOS',      valor: valIngresos, color: '#10b981' },
-        { label: 'GASTOS',        valor: valGastos,   color: '#ef4444' },
-        { label: 'GANANCIA NETA', valor: valGanancia, color: '#6366f1' },
-        { label: 'SOCIOS ACTIVOS',valor: valActivos,  color: '#eab308' },
-    ];
-
-    const cardW = 190;
-    const cardH = 90;
-    const cardGap = 20;
-    const startX = 30;
-    const cardY = 110;
-
-    cards.forEach((c, i) => {
-        const x = startX + i * (cardW + cardGap);
-        // Fondo tarjeta
-        ctx.fillStyle = '#1e1e30';
-        roundRect(ctx, x, cardY, cardW, cardH, 10);
-        ctx.fill();
-        // Borde de color
-        ctx.strokeStyle = c.color;
-        ctx.lineWidth = 2;
-        roundRect(ctx, x, cardY, cardW, cardH, 10);
-        ctx.stroke();
-        // Label
-        ctx.font = 'bold 11px sans-serif';
-        ctx.fillStyle = c.color;
-        ctx.fillText(c.label, x + 14, cardY + 26);
-        // Valor
-        ctx.font = 'bold 26px sans-serif';
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(c.valor, x + 14, cardY + 64);
+        const mesTitulo = document.getElementById('titulo-mes-resumen')?.textContent?.trim() || 'Mes';
+        const link = document.createElement('a');
+        link.download = 'balance_' + mesTitulo.replace(/ /g, '_') + '.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+    }).catch(err => {
+        // Restaurar botones en caso de error
+        if (headerActions) headerActions.style.display = prevDisplay;
+        if (btnPrev) btnPrev.style.display = prevDisplayBtn;
+        if (btnNext) btnNext.style.display = prevDisplayBtn;
+        
+        console.error('Error al generar imagen:', err);
+        alert('Hubo un error al generar la imagen.');
     });
-
-    // ── TABLA COMPARATIVA ───────────────────────
-    const tableY = 230;
-    ctx.font = 'bold 16px sans-serif';
-    ctx.fillStyle = '#e5e7eb';
-    ctx.fillText('COMPARATIVA MENSUAL', 30, tableY);
-
-    const cols = ['MES', 'INGRESOS', 'GASTOS', 'NETO', 'SOCIOS'];
-    const colW = [220, 140, 140, 140, 80];
-    const rowH = 38;
-
-    // Cabecera
-    ctx.fillStyle = '#2a2a40';
-    ctx.fillRect(30, tableY + 12, W - 60, rowH);
-
-    let tx = 30;
-    ctx.font = 'bold 12px sans-serif';
-    ctx.fillStyle = '#9ca3af';
-    cols.forEach((col, i) => {
-        ctx.fillText(col, tx + 10, tableY + 12 + rowH / 2 + 5);
-        tx += colW[i];
-    });
-
-    // Filas
-    const filas = document.querySelectorAll('#tabla-comparativa tr');
-    filas.forEach((fila, idx) => {
-        const celdas = fila.querySelectorAll('td');
-        if (!celdas.length) return;
-        const rowData = Array.from(celdas).map(td => td.textContent.replace('Actual', '').trim());
-        const isActual = fila.classList.contains('fila-actual');
-        const ry = tableY + 12 + rowH + idx * rowH;
-
-        ctx.fillStyle = isActual ? '#2a2a50' : (idx % 2 === 0 ? '#18182a' : '#1e1e30');
-        ctx.fillRect(30, ry, W - 60, rowH);
-
-        tx = 30;
-        rowData.forEach((cell, i) => {
-            let color = '#e5e7eb';
-            if (i === 1) color = '#10b981';
-            if (i === 2) color = '#ef4444';
-            if (i === 3) {
-                const val = parseFloat(cell.replace(/[^0-9.,-]/g, '').replace(',', '.'));
-                color = val >= 0 ? '#10b981' : '#ef4444';
-            }
-            ctx.font = isActual && i === 0 ? 'bold 13px sans-serif' : '13px sans-serif';
-            ctx.fillStyle = color;
-            ctx.fillText(cell, tx + 10, ry + rowH / 2 + 5);
-            tx += colW[i];
-        });
-    });
-
-    // ── PIE ─────────────────────────────────────
-    ctx.font = '11px sans-serif';
-    ctx.fillStyle = '#4b5563';
-    ctx.fillText('GYM CRONOS · Balance del mes de ' + mesTitulo, 30, H - 15);
-
-    // Descargar
-    const link = document.createElement('a');
-    link.download = 'balance_' + mesTitulo.replace(/ /g, '_') + '.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-}
-
-// Helper: rectángulo con bordes redondeados en canvas
-function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
 }

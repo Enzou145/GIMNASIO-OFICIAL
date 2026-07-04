@@ -406,15 +406,17 @@ async function cargarGastosSupabase() {
         const gymId = GIMNASIO_ID;
         const hoy = new Date();
         const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-        const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+        const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0, 23, 59, 59, 999);
 
-        const primerDiaStr = primerDiaMes.toISOString().split('T')[0];
-        const ultimoDiaStr = ultimoDiaMes.toISOString().split('T')[0];
+        const primerDiaISO = primerDiaMes.toISOString();
+        const ultimoDiaISO = ultimoDiaMes.toISOString();
 
         const { data: gastos, error } = await supabaseClient
             .from('gastos')
             .select('*')
             .eq('gimnasio_id', gymId)
+            .gte('fecha', primerDiaISO)
+            .lte('fecha', ultimoDiaISO)
             .order('creado_en', { ascending: true }); // Orden ascendente para que se agreguen al principio
 
         if (error) throw error;
@@ -474,28 +476,31 @@ async function cargarResumen() {
         const gymId = GIMNASIO_ID;
         const hoy = new Date();
         const primerDiaMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1);
-        const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+        const ultimoDiaMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0, 23, 59, 59, 999);
 
-        const primerDiaStr = primerDiaMes.toISOString().split('T')[0];
-        const ultimoDiaStr = ultimoDiaMes.toISOString().split('T')[0];
         const primerDiaISO = primerDiaMes.toISOString();
+        const ultimoDiaISO = ultimoDiaMes.toISOString();
 
-        // Ingresos históricos (tabla pagos)
+        // Ingresos del mes (tabla pagos)
         const { data: pagos, error: errPagos } = await supabaseClient
             .from('pagos')
             .select('monto')
-            .eq('gimnasio_id', gymId);
+            .eq('gimnasio_id', gymId)
+            .gte('fecha_pago', primerDiaISO)
+            .lte('fecha_pago', ultimoDiaISO);
 
         let totalIngresos = 0;
         if (!errPagos && pagos) {
             totalIngresos = pagos.reduce((acc, p) => acc + Number(p.monto), 0);
         }
 
-        // Gastos históricos (tabla gastos)
+        // Gastos del mes (tabla gastos)
         const { data: gastos, error: errGastos } = await supabaseClient
             .from('gastos')
             .select('monto')
-            .eq('gimnasio_id', gymId);
+            .eq('gimnasio_id', gymId)
+            .gte('fecha', primerDiaISO)
+            .lte('fecha', ultimoDiaISO);
 
         let totalGastos = 0;
         let cantidadMovimientos = 0;
